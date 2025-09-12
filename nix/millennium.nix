@@ -1,6 +1,5 @@
 {
   pkgsi686Linux,
-  replaceVars,
   cmake,
   ninja,
   callPackage,
@@ -11,21 +10,23 @@ let
   assets = callPackage ./assets.nix { };
   venv = pkgsi686Linux.python311.withPackages (
     py:
-    (with py; [
-      setuptools
-      pip
+    (builtins.attrValues {
+      inherit (py)
+        setuptools
+        pip
 
-      arrow
-      psutil
-      requests
-      gitpython
-      cssutils
-      websockets
-      watchdog
-      pysocks
-      pyperclip
-      semver
-    ])
+        arrow
+        psutil
+        requests
+        gitpython
+        cssutils
+        websockets
+        watchdog
+        pysocks
+        pyperclip
+        semver
+        ;
+    })
     ++ [
       (callPackage ./python/millennium.nix)
       (callPackage ./python/core-utils.nix)
@@ -78,15 +79,15 @@ pkgsi686Linux.stdenv.mkDerivation {
     ninja
   ];
   env = {
-    NIX_OS = 1;
     inherit venv assets shims;
+    NIX_OS = 1;
   };
   installPhase = ''
     runHook preInstall
 
     mkdir -p $out/lib/millennium
     cp libmillennium_x86.so $out/lib/millennium
-    
+
     runHook postInstall
   '';
   NIX_CFLAGS_COMPILE = [
@@ -94,7 +95,7 @@ pkgsi686Linux.stdenv.mkDerivation {
   ];
   NIX_LDFLAGS = [ "-l${pkgsi686Linux.python311.libPrefix}" ];
 
-  meta = with lib; {
-    maintainers = with maintainers; [ Sk7Str1p3 ];
+  meta = {
+    maintainers = [ lib.maintainers.Sk7Str1p3 ];
   };
 }
