@@ -23,6 +23,8 @@ Millennium is an **open-source low-code modding framework** to create, manage an
 
 If you enjoy this tool, please consider starring the project ⭐
 
+This is a WIP experiment, I dont know if the built dll works, but hey, at least there are no errors
+
 
 ## Installation
 
