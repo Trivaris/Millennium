@@ -281,7 +281,11 @@ add_compile_definitions(
 )
 
 if(WIN32)
-  add_subdirectory(preload)
+  if(NOT NIX_BUILD)
+    add_subdirectory(preload)
+  else()
+    message(STATUS "Skipping preload build under Nix cross environment")
+  endif()
 endif()
 
 set(SOURCE_FILES
@@ -363,7 +367,8 @@ if(NIX_BUILD)
 endif()
 
 if(WIN32)
-  target_link_libraries(Millennium wsock32 Iphlpapi DbgHelp)
+  # Use correct WinSock2 import library and lowercase names for MinGW
+  target_link_libraries(Millennium ws2_32 iphlpapi dbghelp)
 
   if(GITHUB_ACTION_BUILD)
     target_link_libraries(Millennium "${CMAKE_SOURCE_DIR}/build/python/python311.lib")

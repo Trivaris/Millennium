@@ -16,7 +16,10 @@
     let
       pkgs = import nixpkgs {
         system = "x86_64-linux";
-        config.allowUnfree = true;
+        config = {
+          allowUnsupportedSystem = true;
+          allowUnfree = true;
+        };
       };
     in
     {
@@ -37,6 +40,10 @@
       packages."x86_64-linux" = {
         default = self.packages."x86_64-linux".millennium;
         millennium = pkgs.callPackage ./nix/millennium.nix { };
+        # Cross-compiled Windows DLL (i686-w64-mingw32)
+        millennium-windows = pkgs.callPackage ./nix/windows.nix {
+          cross = pkgs.pkgsCross.mingw32;
+        };
         shims = pkgs.callPackage ./nix/typescript/shims.nix { };
         assets = pkgs.callPackage ./nix/assets.nix { };
         python = {

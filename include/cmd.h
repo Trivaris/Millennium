@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #include <shellapi.h>
 #endif
 

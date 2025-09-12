@@ -33,7 +33,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #define _WINSOCKAPI_
-#include <DbgHelp.h>
+#include <dbghelp.h>
 #endif
 #include "co_spawn.h"
 #include "executor.h"
