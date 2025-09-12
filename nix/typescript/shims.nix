@@ -3,16 +3,16 @@
   nodejs,
   pnpm,
   faketty,
+  sdk,
 }:
 stdenv.mkDerivation rec {
   pname = "millennium-sdk";
   version = "git";
 
-  src = ../../sdk;
+  src = sdk;
   pnpmDeps = pnpm.fetchDeps {
     inherit src version pname;
-    #TODO: automatic hash update
-    hash = "sha256-LofHepVz6CjbAXkUwwNFVzlbmPq+g/gJvkBka9I/gHo=";
+    hash = "sha256-Je0nigOKUklS+7iE1R0vwIMe+cDeOZccIXQ7nLeD9Ao=";
     fetcherVersion = 2;
   };
 

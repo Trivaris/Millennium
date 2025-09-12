@@ -1,34 +1,60 @@
 {
   pkgsi686Linux,
-  replaceVars,
   cmake,
   ninja,
   callPackage,
   lib,
+  websocketpp,
+  asio,
+  nlohmann,
+  fmt,
+  vcpkg,
+  crow,
+  ini,
+  sdk,
 }:
 let
-  shims = callPackage ./typescript/shims.nix { };
+  shims = callPackage ./typescript/shims.nix { inherit sdk; };
   assets = callPackage ./assets.nix { };
   venv = pkgsi686Linux.python311.withPackages (
     py:
-    (with py; [
-      setuptools
-      pip
-
-      arrow
-      psutil
-      requests
-      gitpython
-      cssutils
-      websockets
-      watchdog
-      pysocks
-      pyperclip
-      semver
-    ])
+    let
+      # The watchdog test suite tries to exhaust >1024 fds which
+      # fails under typical sandbox ulimit. Disable the flaky test run.
+      watchdogNoCheck = py.watchdog.overridePythonAttrs (_: {
+        doCheck = false;
+        # As an extra guard, if checks are ever re-enabled upstream:
+        pytestFlagsArray = [
+          "-k"
+          "not test_select_fd"
+        ];
+      });
+    in
+    (builtins.attrValues {
+      inherit (py)
+        setuptools
+        pip
+        arrow
+        psutil
+        requests
+        gitpython
+        cssutils
+        websockets
+        pysocks
+        pyperclip
+        semver
+        ;
+    })
     ++ [
-      (callPackage ./python/millennium.nix)
-      (callPackage ./python/core-utils.nix)
+      watchdogNoCheck
+      (callPackage ./python/millennium.nix {
+        inherit sdk;
+        pkgs = pkgsi686Linux;
+      })
+      (callPackage ./python/core-utils.nix {
+        inherit sdk;
+        pkgs = pkgsi686Linux;
+      })
     ]
   );
 in
@@ -36,21 +62,44 @@ pkgsi686Linux.stdenv.mkDerivation {
   pname = "millennium";
   version = "git";
 
+  pyproject = true;
+  build-system = [ pkgsi686Linux.python311Packages.setuptools ];
+
   src = ../.;
+
+  postPatch = ''
+    # Replace git submodules with flake-provided sources by wiring symlinks
+    mkdir -p vendor
+    rm -rf vendor/websocketpp vendor/asio vendor/nlohmann vendor/fmt vendor/vcpkg vendor/crow vendor/ini sdk || true
+
+    # Copy websocketpp to allow patching for newer Asio APIs
+    cp -r ${websocketpp} vendor/websocketpp
+    chmod -R u+w vendor/websocketpp || true
+    ln -s ${asio}        vendor/asio
+    ln -s ${nlohmann}    vendor/nlohmann
+    ln -s ${fmt}         vendor/fmt
+    ln -s ${vcpkg}       vendor/vcpkg
+    ln -s ${crow}        vendor/crow
+    ln -s ${ini}         vendor/ini
+    ln -s ${sdk}         sdk
+
+    # Patch websocketpp for standalone Asio where expires_from_now was removed
+    if [ -f vendor/websocketpp/websocketpp/transport/asio/connection.hpp ]; then
+      substituteInPlace vendor/websocketpp/websocketpp/transport/asio/connection.hpp \
+        --replace "->expires_from_now()" "->expiry() - std::chrono::steady_clock::now()"
+    fi
+
+  '';
 
   buildInputs = [
     shims
     assets
     pkgsi686Linux.python311
-    (pkgsi686Linux.openssl.override {
-      static = true;
-    })
+    (pkgsi686Linux.openssl.override { static = true; })
     (
       (pkgsi686Linux.curl.override {
-        #TODO: what the actual fuck is happening here
-        #      why does nix set every attribute to 'true' ?????
-        http2Support = false; # ;
-        gssSupport = false; # ;
+        http2Support = false;
+        gssSupport = false;
         zlibSupport = true;
         opensslSupport = true;
         brotliSupport = false;
@@ -86,7 +135,7 @@ pkgsi686Linux.stdenv.mkDerivation {
 
     mkdir -p $out/lib/millennium
     cp libmillennium_x86.so $out/lib/millennium
-    
+
     runHook postInstall
   '';
   NIX_CFLAGS_COMPILE = [
