@@ -3,17 +3,17 @@
   nodejs,
   pnpm,
   faketty,
+  sdk,
 }:
 let
   millennium-sdk = {
     pname = "millennium-sdk";
     version = "git";
-    src = ../../sdk;
+    src = sdk;
 
     pnpmDeps = pnpm.fetchDeps {
       inherit (millennium-sdk) src version pname;
-      #TODO: automatic hash update
-      hash = "sha256-LofHepVz6CjbAXkUwwNFVzlbmPq+g/gJvkBka9I/gHo=";
+      hash = "sha256-1cqsNIQnrVAe18FC8D6mnptH+gp4B5+hyGF9lGn0OE0";
       fetcherVersion = 2;
     };
 
