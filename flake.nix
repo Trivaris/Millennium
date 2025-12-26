@@ -10,9 +10,8 @@
       pkgs = import nixpkgs { system = "x86_64-linux"; };
       in
       {
-        sdk = pkgs.callPackage ./packages/nix/sdk.nix { inherit self; };
-        frontend = pkgs.callPackage ./packages/nix/frontend.nix { };
+        loader = pkgs.callPackage ./packages/nix/loader.nix { inherit self; };
+        assets = pkgs.callPackage ./packages/nix/assets.nix { inherit self; };
       };
-
   };
 }
