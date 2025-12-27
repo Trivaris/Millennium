@@ -13,7 +13,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = self;
 
-  nativeBuildInputs = [ 
+  nativeBuildInputs = [
     nodejs_20
     pnpm_9
     pnpmConfigHook

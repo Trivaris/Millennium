@@ -14,14 +14,14 @@
   xorg,
   ...
 }:
-let 
+let
   core = self.packages.${stdenv.system}.millennium-core;
   loader = self.packages.${stdenv.system}.millennium-loader;
 
   python-32bit = pkgsi686Linux.python3;
   pythonLibName = "libpython${python-32bit.pythonVersion}.so";
   pythonLibPath = "${python-32bit}/lib/${pythonLibName}";
-in 
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "millennium";
   version = "2.32.0";
@@ -36,7 +36,7 @@ stdenv.mkDerivation (finalAttrs: {
     gcc_multi
     pkg-config
     python3
-    git 
+    git
     perl
   ];
 
@@ -55,7 +55,7 @@ stdenv.mkDerivation (finalAttrs: {
     pkgsi686Linux.xorg.libXinerama
     pkgsi686Linux.xorg.libSM
     pkgsi686Linux.xorg.libICE
-    pkgsi686Linux.glibc 
+    pkgsi686Linux.glibc
   ];
 
   postPatch = ''
@@ -95,7 +95,7 @@ stdenv.mkDerivation (finalAttrs: {
     set(MILLENNIUM_VERSION "${finalAttrs.version}")
     set(GIT_COMMIT_HASH "nix-build")
     set(MILLENNIUM_VERSION_TAG "v${finalAttrs.version}")
-    
+
     add_compile_definitions(MILLENNIUM_VERSION="${finalAttrs.version}")
     add_compile_definitions(GIT_COMMIT_HASH="nix-build")
     add_compile_definitions(MILLENNIUM_ROOT="${placeholder "out"}/lib/millennium")
@@ -103,39 +103,41 @@ stdenv.mkDerivation (finalAttrs: {
 
     DEPS_DIR=$(pwd)/deps
 
-    FLAGS=$(echo ${toString [
+    FLAGS=$(echo ${
+      toString [
 
-      # Override dependencies to use the copies of flake inputs instead of fetching
-      "-DFETCHCONTENT_TRY_FIND_PACKAGE_MODE=NEVER"
-      "-DFETCHCONTENT_SOURCE_DIR_ZLIB=$DEPS_DIR/zlib"
-      "-DFETCHCONTENT_SOURCE_DIR_LUAJIT=$DEPS_DIR/luajit"
-      "-DFETCHCONTENT_SOURCE_DIR_LUA_CJSON=$DEPS_DIR/luajson"
-      "-DFETCHCONTENT_SOURCE_DIR_MINHOOK=$DEPS_DIR/minhook"
-      "-DFETCHCONTENT_SOURCE_DIR_MINI=$DEPS_DIR/mini"
-      "-DFETCHCONTENT_SOURCE_DIR_WEBSOCKETPP=$DEPS_DIR/websocketpp"
-      "-DFETCHCONTENT_SOURCE_DIR_FMT=$DEPS_DIR/fmt"
-      "-DFETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON=$DEPS_DIR/json"
-      "-DFETCHCONTENT_SOURCE_DIR_LIBGIT2=$DEPS_DIR/libgit2"
-      "-DFETCHCONTENT_SOURCE_DIR_MINIZIP_NG=$DEPS_DIR/minizip"
-      "-DFETCHCONTENT_SOURCE_DIR_CURL=$DEPS_DIR/curl"
-      "-DFETCHCONTENT_SOURCE_DIR_INCBIN=$DEPS_DIR/incbin"
-      "-DFETCHCONTENT_SOURCE_DIR_ASIO=$DEPS_DIR/asio"
-      "-DFETCHCONTENT_SOURCE_DIR_RE2=$DEPS_DIR/re2"
-      "-DFETCHCONTENT_SOURCE_DIR_ABSEIL=$DEPS_DIR/abseil"
+        # Override dependencies to use the copies of flake inputs instead of fetching
+        "-DFETCHCONTENT_TRY_FIND_PACKAGE_MODE=NEVER"
+        "-DFETCHCONTENT_SOURCE_DIR_ZLIB=$DEPS_DIR/zlib"
+        "-DFETCHCONTENT_SOURCE_DIR_LUAJIT=$DEPS_DIR/luajit"
+        "-DFETCHCONTENT_SOURCE_DIR_LUA_CJSON=$DEPS_DIR/luajson"
+        "-DFETCHCONTENT_SOURCE_DIR_MINHOOK=$DEPS_DIR/minhook"
+        "-DFETCHCONTENT_SOURCE_DIR_MINI=$DEPS_DIR/mini"
+        "-DFETCHCONTENT_SOURCE_DIR_WEBSOCKETPP=$DEPS_DIR/websocketpp"
+        "-DFETCHCONTENT_SOURCE_DIR_FMT=$DEPS_DIR/fmt"
+        "-DFETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON=$DEPS_DIR/json"
+        "-DFETCHCONTENT_SOURCE_DIR_LIBGIT2=$DEPS_DIR/libgit2"
+        "-DFETCHCONTENT_SOURCE_DIR_MINIZIP_NG=$DEPS_DIR/minizip"
+        "-DFETCHCONTENT_SOURCE_DIR_CURL=$DEPS_DIR/curl"
+        "-DFETCHCONTENT_SOURCE_DIR_INCBIN=$DEPS_DIR/incbin"
+        "-DFETCHCONTENT_SOURCE_DIR_ASIO=$DEPS_DIR/asio"
+        "-DFETCHCONTENT_SOURCE_DIR_RE2=$DEPS_DIR/re2"
+        "-DFETCHCONTENT_SOURCE_DIR_ABSEIL=$DEPS_DIR/abseil"
 
-      # Apply Python link fix
-      "-DPYTHON_LIBRARY=${pythonLibPath}"
-      "-DPYTHON_INCLUDE_DIR=${python-32bit}/include/python${python-32bit.pythonVersion}"
+        # Apply Python link fix
+        "-DPYTHON_LIBRARY=${pythonLibPath}"
+        "-DPYTHON_INCLUDE_DIR=${python-32bit}/include/python${python-32bit.pythonVersion}"
 
-      # Other build flags to fix issues
-      "-DBUILD_CLAR=OFF" 
-      "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
-    ]})
+        # Other build flags to fix issues
+        "-DBUILD_CLAR=OFF"
+        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+      ]
+    })
 
     substituteInPlace CMakeLists.txt \
       --replace 'DCMAKE_SHARED_LINKER_FLAGS_RELEASE=''${CMAKE_SHARED_LINKER_FLAGS_RELEASE}' \
                 "DCMAKE_SHARED_LINKER_FLAGS_RELEASE=''${CMAKE_SHARED_LINKER_FLAGS_RELEASE} $FLAGS'"
-   '';
+  '';
 
   buildPhase = ''
     runHook preBuild
@@ -175,7 +177,7 @@ stdenv.mkDerivation (finalAttrs: {
     cp -r          src/pipx                                                                 "$out/share/millennium/assets/"
     cp -r          src/sdk/packages/loader/build/*                                          "$out/share/millennium/shims/"
     install -Dm644 LICENSE.md                                                               "$out/share/licenses/millennium/"
-    
+
     runHook postInstall
   '';
 })

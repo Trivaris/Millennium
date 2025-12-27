@@ -3,32 +3,32 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    
+
     zlib-src = {
       url = "github:zlib-ng/zlib-ng?ref=6d9f3dc072369dc719a5fbe71d4e086a96a680bd"; # 2.3.2 Commit
       flake = false;
     };
-    
+
     luajit-src = {
       url = "github:SteamClientHomebrew/LuaJIT?ref=89550023569c3e195e75e12951c067fe5591e0d2"; # Latest Commit as of 2025-12-27
       flake = false;
     };
-    
+
     luajson-src = {
       url = "github:SteamClientHomebrew/LuaJSON?ref=0c1fabf07c42f3907287d1e4f729e0620c1fe6fd"; # Latest Commit as of 2025-12-27
       flake = false;
     };
-    
+
     minhook-src = {
       url = "github:TsudaKageyu/minhook?ref=c3fcafdc10146beb5919319d0683e44e3c30d537"; # v1.3.4 Commit
       flake = false;
     };
-    
+
     mini-src = {
       url = "github:metayeti/mINI?ref=52b66e987cb56171dc91d96115cdf094b6e4d7a0"; # 0.9.18 Commit
       flake = false;
     };
-    
+
     websocketpp-src = {
       url = "github:zaphoyd/websocketpp?ref=56123c87598f8b1dd471be83ca841ceae07f95ba"; # 0.8.2 Commit
       flake = false;
@@ -38,12 +38,12 @@
       url = "github:fmtlib/fmt?ref=e424e3f2e607da02742f73db84873b8084fc714c"; # 12.0.0 Commit
       flake = false;
     };
-    
+
     nlohmann-json-src = {
       url = "github:nlohmann/json?ref=55f93686c01528224f448c19128836e7df245f72"; # 3.12.0 Commit
       flake = false;
     };
-    
+
     libgit2-src = {
       url = "github:libgit2/libgit2?ref=0060d9cf5666f015b1067129bd874c6cc4c9c7ac"; # v1.9.1 Commit
       flake = false;
@@ -80,25 +80,32 @@
     };
   };
 
-  outputs = { self, nixpkgs, ... }@inputs: {
-    packages.x86_64-linux = let
-      pkgs = import nixpkgs { system = "x86_64-linux"; };
-      in
-      {
-        millennium-core = pkgs.callPackage ./packages/nix/core.nix { inherit self; };
-        millennium-loader = pkgs.callPackage ./packages/nix/loader.nix { inherit self; };
-        millennium = pkgs.callPackage ./packages/nix/millennium.nix { inherit self inputs; };
-        millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
-      };
-    overlays.default = final: prev: {
+  outputs =
+    { self, nixpkgs, ... }@inputs:
+    {
+      packages.x86_64-linux =
+        let
+          pkgs = import nixpkgs { system = "x86_64-linux"; };
+        in
+        {
+          millennium-core = pkgs.callPackage ./packages/nix/core.nix { self = ./.; };
+          millennium-loader = pkgs.callPackage ./packages/nix/loader.nix { self = ./.; };
+          millennium = pkgs.callPackage ./packages/nix/millennium.nix { inherit inputs; self = ./.; };
+          millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
+        };
+        
+      overlays.default = final: prev: {
         steam-millennium = final.steam.override (prev: {
-        extraProfile =
-          ''
-            export LD_LIBRARY_PATH="${self.packages.${final.system}.millennium}/lib/millennium/''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-            export LD_PRELOAD="${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_x86.so''${LD_PRELOAD:+:$LD_PRELOAD}"
+          extraProfile = ''
+            export LD_LIBRARY_PATH="${
+              self.packages.${final.system}.millennium
+            }/lib/millennium/''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            export LD_PRELOAD="${
+              self.packages.${final.system}.millennium
+            }/lib/millennium/libmillennium_x86.so''${LD_PRELOAD:+:$LD_PRELOAD}"
           ''
           + (prev.extraProfile or "");
-      });
+        });
+      };
     };
-  };
 }
