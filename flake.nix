@@ -119,18 +119,34 @@
         packages
       );
 
-      overlays.default = final: prev: {
-        steam-millennium = final.steam.override (prev: {
-          extraProfile = ''
-            export LD_LIBRARY_PATH="${
-              self.packages.${final.system}.millennium
-            }/lib/millennium/''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-            export LD_PRELOAD="${
-              self.packages.${final.system}.millennium
-            }/lib/millennium/libmillennium_x86.so''${LD_PRELOAD:+:$LD_PRELOAD}"
-          ''
-          + (prev.extraProfile or "");
-        });
-      };
+      overlays.default =
+        final: prev:
+        let
+          millennium = self.packages.${final.system}.millennium;
+          millennium-bin = self.packages.${final.system}.millennium-bin;
+        in
+        {
+          inherit millennium millennium-bin;
+
+          steam-millennium = final.steam.override (prev: {
+            extraEnv = {
+              LD_PRELOAD = "${millennium}/lib/millennium/libmillennium_hhx64.so:${millennium}/lib/millennium/libmillennium_x86.so";
+            };
+            extraProfile = ''
+              export PATH="$PATH:/opt/python-i686-3.11.8/bin"
+              export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/python-i686-3.11.8/lib"
+            '';
+          });
+
+          steam-millennium-bin = final.steam.override (prev: {
+            extraEnv = {
+              LD_PRELOAD = "${millennium-bin}/lib/millennium/libmillennium_hhx64.so:${millennium-bin}/lib/millennium/libmillennium_x86.so";
+            };
+            extraProfile = ''
+              export PATH="$PATH:/opt/python-i686-3.11.8/bin"
+              export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/python-i686-3.11.8/lib"
+            '';
+          });
+        };
     };
 }

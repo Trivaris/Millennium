@@ -41,6 +41,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     pkgsi686Linux.openssl
+    pkgsi686Linux.glibc
     pkgsi686Linux.xorg.libX11
     pkgsi686Linux.xorg.libXtst
     pkgsi686Linux.xorg.libXi
@@ -54,7 +55,6 @@ stdenv.mkDerivation (finalAttrs: {
     pkgsi686Linux.xorg.libXinerama
     pkgsi686Linux.xorg.libSM
     pkgsi686Linux.xorg.libICE
-    pkgsi686Linux.glibc
   ];
 
   postPatch = ''
@@ -88,6 +88,8 @@ stdenv.mkDerivation (finalAttrs: {
     # Fix Python linking
     grep -rl "/opt/python-i686-3.11.8" . | xargs sed -i "s|/opt/python-i686-3.11.8|${python-32bit}|g"
     grep -rl "libpython-3.11.8.so" . | xargs sed -i "s|libpython-3.11.8.so|${pythonLibName}|g"
+
+    grep -rl "build/src/hhx64-build/" . | xargs sed -i "s|build/src/hhx64-build/||g"
 
     # Add missing git macros since we simulate the git repo
     cat > scripts/cmake/millennium_version.cmake <<EOF
