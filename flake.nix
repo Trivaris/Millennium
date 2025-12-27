@@ -133,8 +133,10 @@
               LD_PRELOAD = "${millennium}/lib/millennium/libmillennium_hhx64.so:${millennium}/lib/millennium/libmillennium_x86.so";
             };
             extraProfile = ''
-              export PATH="$PATH:/opt/python-i686-3.11.8/bin"
-              export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/python-i686-3.11.8/lib"
+              mkdir -p $HOME/.steam/steam/ubuntu12_32
+              ln -sf ${millennium}/lib/millennium/libmillennium_bootstrap_86x.so $HOME/.steam/steam/ubuntu12_32/libXtst.so.6
+              mkdir -p /opt
+              ln -sfn ${pkgsi686Linux.python311} /opt/python-i686-3.11.8
             '';
           });
 
