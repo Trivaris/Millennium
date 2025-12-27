@@ -82,18 +82,43 @@
 
   outputs =
     { self, nixpkgs, ... }@inputs:
+    let
+      systems = [ "x86_64-linux" ];
+      forEachSystem =
+        f:
+        builtins.listToAttrs (
+          map (system: {
+            name = system;
+            value = f (
+              import nixpkgs {
+                inherit system;
+                config = {
+                  allowUnfree = true;
+                };
+              }
+            );
+          }) systems
+        );
+    in
     {
-      packages.x86_64-linux =
+      packages = forEachSystem (
+        pkgs:
         let
-          pkgs = import nixpkgs { system = "x86_64-linux"; };
+          packages = {
+            default = packages.millennium;
+            millennium-core = pkgs.callPackage ./packages/nix/core.nix { self = ./.; };
+            millennium-loader = pkgs.callPackage ./packages/nix/loader.nix { self = ./.; };
+            millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
+            millennium = pkgs.callPackage ./packages/nix/millennium.nix {
+              inherit inputs;
+              inherit (packages) millennium-core millennium-loader;
+              self = ./.;
+            };
+          };
         in
-        {
-          millennium-core = pkgs.callPackage ./packages/nix/core.nix { self = ./.; };
-          millennium-loader = pkgs.callPackage ./packages/nix/loader.nix { self = ./.; };
-          millennium = pkgs.callPackage ./packages/nix/millennium.nix { inherit inputs; self = ./.; };
-          millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
-        };
-        
+        packages
+      );
+
       overlays.default = final: prev: {
         steam-millennium = final.steam.override (prev: {
           extraProfile = ''
