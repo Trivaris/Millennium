@@ -32,9 +32,6 @@ stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
-    mkdir -p src/sdk/scripts
-    cp src/sdk/tsconfig.base.json src/sdk/scripts
-
     pnpm --dir src/sdk --filter=@steambrew/api build
 
     runHook postBuild
