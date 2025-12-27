@@ -17,9 +17,11 @@
   ...
 }:
 let
-  python-32bit = pkgsi686Linux.python3;
+  python-32bit = pkgsi686Linux.python311;
   pythonLibName = "libpython${python-32bit.pythonVersion}.so";
   pythonLibPath = "${python-32bit}/lib/${pythonLibName}";
+  pythonInclude = "${python-32bit}/include/python${python-32bit.pythonVersion}";
+  pythonExecutable = "${python-32bit}/bin/python3";
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "millennium";
@@ -42,6 +44,8 @@ stdenv.mkDerivation (finalAttrs: {
   buildInputs = [
     pkgsi686Linux.openssl
     pkgsi686Linux.glibc
+    pkgsi686Linux.gtk3
+    pkgsi686Linux.libpsl
     pkgsi686Linux.xorg.libX11
     pkgsi686Linux.xorg.libXtst
     pkgsi686Linux.xorg.libXi
@@ -90,6 +94,7 @@ stdenv.mkDerivation (finalAttrs: {
     grep -rl "libpython-3.11.8.so" . | xargs sed -i "s|libpython-3.11.8.so|${pythonLibName}|g"
 
     grep -rl "build/src/hhx64-build/" . | xargs sed -i "s|build/src/hhx64-build/||g"
+    grep -rl "/home/shdw/Development/Millennium" . | xargs sed -i "s|/home/shdw/Development/Millennium|${placeholder "out"}/lib/millennium|g"
 
     # Add missing git macros since we simulate the git repo
     cat > scripts/cmake/millennium_version.cmake <<EOF
@@ -100,6 +105,7 @@ stdenv.mkDerivation (finalAttrs: {
     add_compile_definitions(MILLENNIUM_VERSION="${finalAttrs.version}")
     add_compile_definitions(GIT_COMMIT_HASH="nix-build")
     add_compile_definitions(MILLENNIUM_ROOT="${placeholder "out"}/lib/millennium")
+    add_compile_definitions(LIBPYTHON_RUNTIME_PATH="${pythonLibPath}")
     EOF
 
     DEPS_DIR=$(pwd)/deps
@@ -126,12 +132,16 @@ stdenv.mkDerivation (finalAttrs: {
         "-DFETCHCONTENT_SOURCE_DIR_ABSEIL=$DEPS_DIR/abseil"
 
         # Apply Python link fix
+        "-DPython3_EXECUTABLE=${pythonExecutable}"
+        "-DPython3_LIBRARY=${pythonLibPath}"
+        "-DPython3_INCLUDE_DIR=${pythonInclude}"
         "-DPYTHON_LIBRARY=${pythonLibPath}"
-        "-DPYTHON_INCLUDE_DIR=${python-32bit}/include/python${python-32bit.pythonVersion}"
+        "-DPYTHON_INCLUDE_DIR=${pythonInclude}"
 
         # Other build flags to fix issues
         "-DBUILD_CLAR=OFF"
         "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        # "-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0"
       ]
     })
 
@@ -148,6 +158,7 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p build
     cp -r ${millennium-loader}/share/millennium/shims/* src/sdk/packages/loader/build/
     cp -r ${millennium-core}/share/millennium/build/* ./build/
+
     # Ran into problems with git, so create a dummy repo
     git init
     git config user.email "nix-build@localhost"
@@ -167,16 +178,18 @@ stdenv.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p $out/lib/millennium
-    mkdir -p $out/share/millennium/shims
+    # mkdir -p $out/share/millennium/shims
     mkdir -p $out/share/millennium/assets
     mkdir -p $out/share/licenses/millennium
+    mkdir -p $out/opt/python-i686-${python-32bit.pythonVersion}
 
     install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so                      "$out/lib/millennium/"
     install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so "$out/lib/millennium/"
     install -Dm755 build/src/hhx64-build/libmillennium_hhx64.so                             "$out/lib/millennium/"
     cp -r          src/pipx                                                                 "$out/share/millennium/assets/"
-    cp -r          src/sdk/packages/loader/build/*                                          "$out/share/millennium/shims/"
+    # cp -r          src/sdk/packages/loader/build/*                                          "$out/share/millennium/shims/"
     install -Dm644 LICENSE.md                                                               "$out/share/licenses/millennium/"
+    cp -r         ${python-32bit}/*                                                         "$out/opt/python-i686-${python-32bit.pythonVersion}/"
 
     runHook postInstall
   '';

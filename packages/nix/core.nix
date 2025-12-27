@@ -31,7 +31,7 @@ stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
-    pnpm --dir src/frontend run build
+    pnpm --dir src/frontend run prod
 
     runHook postBuild
   '';
