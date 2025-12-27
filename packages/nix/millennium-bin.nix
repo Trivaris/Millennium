@@ -5,7 +5,7 @@
   ...
 }:
 stdenv.mkDerivation (prevAttrs: {
-  pname = "millennium-steam-bin";
+  pname = "millennium-bin";
   version = "2.32.0";
 
   sourceRoot = ".";
