@@ -136,7 +136,7 @@
               mkdir -p $HOME/.steam/steam/ubuntu12_32
               ln -sf ${millennium}/lib/millennium/libmillennium_bootstrap_86x.so $HOME/.steam/steam/ubuntu12_32/libXtst.so.6
               mkdir -p /opt
-              ln -sfn ${pkgsi686Linux.python311} /opt/python-i686-3.11.8
+              ln -sfn ${prev.pkgsi686Linux.python311} /opt/python-i686-3.11.8
             '';
           });
 
