@@ -23,7 +23,7 @@ let
   pythonLibPath = "${python-32bit}/lib/${pythonLibName}";
 in 
 stdenv.mkDerivation (finalAttrs: {
-  pname = "millennium-steam";
+  pname = "millennium";
   version = "2.32.0";
 
   src = self;

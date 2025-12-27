@@ -87,8 +87,18 @@
       {
         millennium-core = pkgs.callPackage ./packages/nix/core.nix { inherit self; };
         millennium-loader = pkgs.callPackage ./packages/nix/loader.nix { inherit self; };
-        millennium-steam = pkgs.callPackage ./packages/nix/millennium.nix { inherit self inputs; };
-        millennium-steam-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
+        millennium = pkgs.callPackage ./packages/nix/millennium.nix { inherit self inputs; };
+        millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
       };
+    overlays.default = final: prev: {
+        steam-millennium = final.steam.override (prev: {
+        extraProfile =
+          ''
+            export LD_LIBRARY_PATH="${self.packages.${final.system}.millennium}/lib/millennium/''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            export LD_PRELOAD="${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_x86.so''${LD_PRELOAD:+:$LD_PRELOAD}"
+          ''
+          + (prev.extraProfile or "");
+      });
+    };
   };
 }
