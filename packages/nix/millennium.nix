@@ -2,6 +2,8 @@
   stdenv,
   pkgsi686Linux,
   self,
+  millennium-core,
+  millennium-loader,
   inputs,
   cmake,
   ninja,
@@ -15,9 +17,6 @@
   ...
 }:
 let
-  core = self.packages.${stdenv.system}.millennium-core;
-  loader = self.packages.${stdenv.system}.millennium-loader;
-
   python-32bit = pkgsi686Linux.python3;
   pythonLibName = "libpython${python-32bit.pythonVersion}.so";
   pythonLibPath = "${python-32bit}/lib/${pythonLibName}";
@@ -145,9 +144,8 @@ stdenv.mkDerivation (finalAttrs: {
     # Copy shims and build from our millennium-core and millennium-loader packages
     mkdir -p src/sdk/packages/loader/build
     mkdir -p build
-    cp -r ${loader}/share/millennium/shims/* src/sdk/packages/loader/build/
-    cp -r ${core}/share/millennium/build/* ./build/
-
+    cp -r ${millennium-loader}/share/millennium/shims/* src/sdk/packages/loader/build/
+    cp -r ${millennium-core}/share/millennium/build/* ./build/
     # Ran into problems with git, so create a dummy repo
     git init
     git config user.email "nix-build@localhost"
