@@ -121,27 +121,35 @@
 
       overlays.default =
         final: prev:
-        let
-          millennium = self.packages.${final.system}.millennium;
-          millennium-bin = self.packages.${final.system}.millennium-bin;
-        in
+        let 
+          millennium = self.packages.${prev.system}.millennium;
+          millennium-bin = self.packages.${prev.system}.millennium-bin;
+        in 
         {
-          inherit millennium millennium-bin;
-
           steam-millennium = final.steam.override (prev_steam: {
-            extraProfile = ''
-              mkdir -p $HOME/.steam/steam/ubuntu12_32
-              ln -sf ${millennium}/lib/millennium/libmillennium_bootstrap_86x.so $HOME/.steam/steam/ubuntu12_32/libXtst.so.6
-              export PYTHONPATH="${prev.pkgsi686Linux.python311}/lib/python3.11"
-            '';
-          });
+            extraPkgs = pkgs: [ 
+              millennium
+              millennium.python
+              pkgs.pkgsi686Linux.openssl
+            ];
 
-          steam-millennium-bin = final.steam.override (prev_steam: {
+            extraArgs = "-loader ${millennium}/lib/millennium/libmillennium_x86.so";
+
             extraProfile = ''
+              mkdir -p $HOME/.local/share/millennium
               mkdir -p $HOME/.steam/steam/ubuntu12_32
-              ln -sf ${millennium-bin}/lib/millennium/libmillennium_bootstrap_86x.so $HOME/.steam/steam/ubuntu12_32/libXtst.so.6
-              mkdir -p /opt
-              ln -sfn ${prev.pkgsi686Linux.python311} /opt/python-i686-3.11.8
+
+              rm -rf $HOME/.local/share/millennium/python-bridge
+              mkdir -p $HOME/.local/share/millennium/python-bridge/lib
+
+              cp -r ${millennium}/share/millennium/python-stdlib/* \
+                    $HOME/.local/share/millennium/python-bridge/lib
+
+              ln -sf ${millennium}/lib/millennium/libmillennium_bootstrap_86x.so \
+                    $HOME/.steam/steam/ubuntu12_32/libXtst.so.6
+
+              export PYTHONHOME="$HOME/.local/share/millennium/python-bridge"
+              unset PYTHONPATH
             '';
           });
         };
