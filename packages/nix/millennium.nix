@@ -67,7 +67,9 @@ stdenv.mkDerivation (finalAttrs: {
 
   postFixup = ''
     for lib in $out/lib/millennium/*.so; do
-      patchelf --set-rpath "$HOME/.local/share/millennium/python-bridge/lib:$out/lib/millennium" "$lib"
+      patchelf --set-rpath \
+        "$out/share/millennium/python-bridge/lib:$out/lib/millennium" \
+        "$lib"
     done
   '';
 
@@ -147,16 +149,8 @@ stdenv.mkDerivation (finalAttrs: {
         "-DFETCHCONTENT_SOURCE_DIR_ABSEIL=$DEPS_DIR/abseil"
 
         # Apply Python link fix
-        "-DPython3_EXECUTABLE=${pythonExecutable}"
-        "-DPython3_LIBRARY=${pythonLibPath}"
-        "-DPython3_INCLUDE_DIR=${pythonInclude}"
-        "-DPYTHON_LIBRARY=${pythonLibPath}"
-        "-DPYTHON_INCLUDE_DIR=${pythonInclude}"
-
-        # Other build flags to fix issues
-        "-DBUILD_CLAR=OFF"
-        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
-        # "-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0"
+        "-D_NIX_OS=1"
+        "-DLIBPYTHON_RUNTIME_PATH=${pythonLibPath}"
       ]
     })
 
@@ -194,7 +188,6 @@ stdenv.mkDerivation (finalAttrs: {
 
     mkdir -p $out/lib/millennium
     mkdir -p $out/share/millennium/assets
-    mkdir -p $out/share/millennium/python-bridge
 
     install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so \
       $out/lib/millennium/
@@ -207,15 +200,6 @@ stdenv.mkDerivation (finalAttrs: {
 
     cp -r src/pipx \
       $out/share/millennium/assets/
-
- 
-    cp -r ${python-32bit}/lib \
-      $out/share/millennium/python-bridge/
-
-    rm -rf $out/share/millennium/python-bridge/lib/pkgconfig
-
-    patchelf --set-rpath '$ORIGIN' \
-      $out/lib/millennium/libmillennium_x86.so
 
     runHook postInstall
   '';

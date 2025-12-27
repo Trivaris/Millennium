@@ -137,15 +137,17 @@
             extraProfile = ''
               mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
               ln -sf ${millennium}/lib/millennium/libmillennium_bootstrap_86x.so \
-                    "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
 
               mkdir -p "$HOME/.steam/steam"
               touch "$HOME/.steam/steam/.cef-enable-remote-debugging"
 
-              export PYTHONHOME="${millennium}/share/millennium/python-bridge"
-              unset PYTHONPATH
-
               export OPENSSL_CONF=/dev/null
+              export MILLENNIUM_DISABLE_WEBHELPER_HOOK=1
+
+              unset LD_PRELOAD
+              unset PYTHONHOME
+              unset PYTHONPATH
             '';
           };
         };
