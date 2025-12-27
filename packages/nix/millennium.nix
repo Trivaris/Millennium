@@ -75,6 +75,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   patches = [
     ./nix-python-env.patch
+    ./nix-python-env2.patch
   ];
 
   postPatch = ''
