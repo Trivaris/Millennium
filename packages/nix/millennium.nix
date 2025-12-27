@@ -63,6 +63,14 @@ stdenv.mkDerivation (finalAttrs: {
     pkgsi686Linux.xorg.libICE
   ];
 
+  python = python-32bit;
+
+  postFixup = ''
+    for lib in $out/lib/millennium/*.so; do
+      patchelf --set-rpath "$HOME/.local/share/millennium/python-bridge/lib:$out/lib/millennium" "$lib"
+    done
+  '';
+
   postPatch = ''
     mkdir -p deps
 
@@ -181,19 +189,29 @@ stdenv.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p $out/lib/millennium
-    # mkdir -p $out/share/millennium/shims
     mkdir -p $out/share/millennium/assets
-    mkdir -p $out/share/licenses/millennium
-    mkdir -p $out/opt/python-i686-${python-32bit.pythonVersion}
+    mkdir -p $out/share/millennium/python-stdlib
 
-    install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so                      "$out/lib/millennium/"
-    install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so "$out/lib/millennium/"
-    install -Dm755 build/src/hhx64-build/libmillennium_hhx64.so                             "$out/lib/millennium/"
-    cp -r          src/pipx                                                                 "$out/share/millennium/assets/"
-    # cp -r          src/sdk/packages/loader/build/*                                          "$out/share/millennium/shims/"
-    install -Dm644 LICENSE.md                                                               "$out/share/licenses/millennium/"
-    cp -r         ${python-32bit}/*                                                         "$out/opt/python-i686-${python-32bit.pythonVersion}/"
+    install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so \
+      $out/lib/millennium/
+
+    install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so \
+      $out/lib/millennium/
+
+    install -Dm755 build/src/hhx64-build/libmillennium_hhx64.so \
+      $out/lib/millennium/
+
+    cp -r src/pipx \
+      $out/share/millennium/assets/
+
+    mkdir -p $out/share/millennium/python-stdlib/lib
+    cp -r ${python-32bit}/lib/python3.11 \
+      $out/share/millennium/python-stdlib/lib/
+
+    patchelf --set-rpath '$ORIGIN' \
+      $out/lib/millennium/libmillennium_x86.so
 
     runHook postInstall
   '';
+
 })
