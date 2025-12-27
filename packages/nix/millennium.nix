@@ -71,6 +71,10 @@ stdenv.mkDerivation (finalAttrs: {
     done
   '';
 
+  patches = [
+    ./nix-python-env.patch
+  ];
+
   postPatch = ''
     mkdir -p deps
 
@@ -190,7 +194,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     mkdir -p $out/lib/millennium
     mkdir -p $out/share/millennium/assets
-    mkdir -p $out/share/millennium/python-stdlib
+    mkdir -p $out/share/millennium/python-bridge
 
     install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so \
       $out/lib/millennium/
@@ -204,9 +208,11 @@ stdenv.mkDerivation (finalAttrs: {
     cp -r src/pipx \
       $out/share/millennium/assets/
 
-    mkdir -p $out/share/millennium/python-stdlib/lib
-    cp -r ${python-32bit}/lib/python3.11 \
-      $out/share/millennium/python-stdlib/lib/
+ 
+    cp -r ${python-32bit}/lib \
+      $out/share/millennium/python-bridge/
+
+    rm -rf $out/share/millennium/python-bridge/lib/pkgconfig
 
     patchelf --set-rpath '$ORIGIN' \
       $out/lib/millennium/libmillennium_x86.so

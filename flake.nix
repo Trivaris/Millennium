@@ -126,32 +126,28 @@
           millennium-bin = self.packages.${prev.system}.millennium-bin;
         in 
         {
-          steam-millennium = final.steam.override (prev_steam: {
-            extraPkgs = pkgs: [ 
+          steam-millennium = prev.steam.override {
+            extraPkgs = pkgs: [
               millennium
-              millennium.python
               pkgs.pkgsi686Linux.openssl
             ];
 
             extraArgs = "-loader ${millennium}/lib/millennium/libmillennium_x86.so";
 
             extraProfile = ''
-              mkdir -p $HOME/.local/share/millennium
-              mkdir -p $HOME/.steam/steam/ubuntu12_32
-
-              rm -rf $HOME/.local/share/millennium/python-bridge
-              mkdir -p $HOME/.local/share/millennium/python-bridge/lib
-
-              cp -r ${millennium}/share/millennium/python-stdlib/* \
-                    $HOME/.local/share/millennium/python-bridge/lib
-
+              mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
               ln -sf ${millennium}/lib/millennium/libmillennium_bootstrap_86x.so \
-                    $HOME/.steam/steam/ubuntu12_32/libXtst.so.6
+                    "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
 
-              export PYTHONHOME="$HOME/.local/share/millennium/python-bridge"
+              mkdir -p "$HOME/.steam/steam"
+              touch "$HOME/.steam/steam/.cef-enable-remote-debugging"
+
+              export PYTHONHOME="${millennium}/share/millennium/python-bridge"
               unset PYTHONPATH
+
+              export OPENSSL_CONF=/dev/null
             '';
-          });
+          };
         };
     };
 }
