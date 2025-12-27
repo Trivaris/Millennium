@@ -5,6 +5,7 @@
   millennium-core,
   millennium-loader,
   inputs,
+  autoPatchelfHook,
   cmake,
   ninja,
   openssl,
@@ -32,6 +33,7 @@ stdenv.mkDerivation (finalAttrs: {
   dontUseCmakeConfigure = true;
 
   nativeBuildInputs = [
+    autoPatchelfHook
     cmake
     ninja
     gcc_multi
@@ -95,6 +97,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     grep -rl "build/src/hhx64-build/" . | xargs sed -i "s|build/src/hhx64-build/||g"
     grep -rl "/home/shdw/Development/Millennium" . | xargs sed -i "s|/home/shdw/Development/Millennium|${placeholder "out"}/lib/millennium|g"
+    grep -rl "/usr/lib/millennium/libmillennium_x86.so" . | xargs sed -i "s|/usr/lib/millennium/libmillennium_x86.so|${placeholder "out"}/lib/millennium/libmillennium_x86.so|g"
 
     # Add missing git macros since we simulate the git repo
     cat > scripts/cmake/millennium_version.cmake <<EOF
