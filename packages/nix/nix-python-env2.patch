@@ -1,0 +1,21 @@
+diff --git a/src/plat/init_posix.cc b/src/plat/init_posix.cc
+index 986eff89..5553397c 100644
+--- a/src/plat/init_posix.cc
++++ b/src/plat/init_posix.cc
+@@ -103,6 +103,16 @@ DESTRUCTOR void Posix_UnInitializeEnvironment()
+ 
+ void Posix_AttachWebHelperHook()
+ {
++    if (getenv("MILLENNIUM_DISABLE_WEBHELPER_HOOK")) {
++        Logger.Log("[Posix_AttachWebHelperHook] Disabled via MILLENNIUM_DISABLE_WEBHELPER_HOOK");
++        return;
++    }
++    
++    #ifdef _NIX_OS
++        Logger.Log("[Posix_AttachWebHelperHook] Disabled on NixOS");
++        return;
++    #endif
++
+     const char* existing = getenv("LD_PRELOAD");
+     char* new_value;
+ 
