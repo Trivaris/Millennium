@@ -1,6 +1,6 @@
 {
   stdenv,
-  nodejs,
+  nodejs_20,
   pnpm_9,
   pnpmConfigHook,
   fetchPnpmDeps,
@@ -8,34 +8,34 @@
   ...
 }:
 stdenv.mkDerivation (finalAttrs: {
-  pname = "millennium-sdk";
+  pname = "millennium-loader";
   version = "0.0.0";
 
   src = self;
 
   nativeBuildInputs = [ 
-    nodejs
-    pnpm_9.configHook
+    nodejs_20
+    pnpm_9
+    pnpmConfigHook
   ];
 
   pnpmRoot = "src/sdk";
   pnpmWorkspaces = [ "@steambrew/api" ];
 
-  pnpmDeps = pnpm_9.fetchDeps {
+  pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) version pname pnpmWorkspaces;
     src = "${finalAttrs.src}/src/sdk";
     fetcherVersion = 3;
-    hash = "sha256-NGq5c1E8yM1hwHvVmjtTnReVrXSxb+AK1Qv4K0FsNDg=";
+    hash = "sha256-YaOHf5pfStiOG/ay3QKTAyIfjH39hVRnw53qucNeJG8=";
   };
 
   buildPhase = ''
     runHook preBuild
 
-    cd src/sdk
-    mkdir -p ./scripts
-    cp tsconfig.base.json ./scripts
+    mkdir -p src/sdk/scripts
+    cp src/sdk/tsconfig.base.json src/sdk/scripts
 
-    pnpm --filter=@steambrew/api build
+    pnpm --dir src/sdk --filter=@steambrew/api build
 
     runHook postBuild
   '';
@@ -44,7 +44,7 @@ stdenv.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p $out/share/millennium/shims
-    cp -r packages/loader/build/* $out/share/millennium/shims
+    cp -r src/sdk/packages/loader/build/* $out/share/millennium/shims
 
     runHook postInstall
   '';
