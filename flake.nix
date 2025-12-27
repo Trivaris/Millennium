@@ -128,7 +128,7 @@
         {
           inherit millennium millennium-bin;
 
-          steam-millennium = final.steam.override (prev: {
+          steam-millennium = final.steam.override (prev_steam: {
             extraEnv = {
               LD_PRELOAD = "${millennium}/lib/millennium/libmillennium_hhx64.so:${millennium}/lib/millennium/libmillennium_x86.so";
             };
@@ -140,7 +140,7 @@
             '';
           });
 
-          steam-millennium-bin = final.steam.override (prev: {
+          steam-millennium-bin = final.steam.override (prev_steam: {
             extraEnv = {
               LD_PRELOAD = "${millennium-bin}/lib/millennium/libmillennium_hhx64.so:${millennium-bin}/lib/millennium/libmillennium_x86.so";
             };
