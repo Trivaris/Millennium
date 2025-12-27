@@ -39,8 +39,6 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    ls -la
-
     mkdir -p $out/share/millennium/build
     cp -r build/frontend.bin $out/share/millennium/build
 
