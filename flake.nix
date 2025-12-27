@@ -132,8 +132,7 @@
             extraProfile = ''
               mkdir -p $HOME/.steam/steam/ubuntu12_32
               ln -sf ${millennium}/lib/millennium/libmillennium_bootstrap_86x.so $HOME/.steam/steam/ubuntu12_32/libXtst.so.6
-              mkdir -p /opt
-              ln -sfn ${prev.pkgsi686Linux.python311} /opt/python-i686-3.11.8
+              export PYTHONPATH="${prev.pkgsi686Linux.python311}/lib/python3.11"
             '';
           });
 
