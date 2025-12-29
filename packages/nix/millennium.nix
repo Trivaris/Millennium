@@ -129,6 +129,7 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p $out/lib/millennium
 
     cp -L ${finalAttrs.python}/lib/libpython3.11.so.1.0 $out/lib/millennium/libpython3.11.so
+    cp -r ${finalAttrs.python}/lib/python3.11 $out/lib/millennium/lib/
 
     cp -r ${millennium-assets}/share/millennium/assets/* build/
     cp -r ${millennium-shims}/share/millennium/shims/* src/sdk/packages/loader/build

@@ -216,7 +216,7 @@ void SetupEnvironmentVariables()
     const static std::string pythonEnv = fmt::format("{}/millennium/.venv", dataDir);
     const std::string pythonEnvBin = fmt::format("{}/bin/python3.11", pythonEnv);
     if (access(pythonEnvBin.c_str(), F_OK) == -1) {
-        int result = std::system(fmt::format("\"{}/bin/python3.11\" -m venv \"{}\" --system-site-packages --symlinks", NIX_STR(MILLENNIUM__PYTHON_ENV), pythonEnv).c_str());
+        int result = std::system(fmt::format("\"{}/bin/python3.11\" -m venv \"{}\" --system-site-packages --symlinks", MILLENNIUM__PYTHON_ENV, pythonEnv).c_str());
 
         if (result != 0) {
             LOG_ERROR("Failed to create python virtual environment");
@@ -252,8 +252,8 @@ void SetupEnvironmentVariables()
 
         { "MILLENNIUM__PYTHON_ENV", pythonEnv },
         { "LIBPYTHON_RUNTIME_BIN_PATH", pythonEnvBin },
-        { "LIBPYTHON_BUILTIN_MODULES_PATH", fmt::format("{}/lib/python3.11", NIX_STR(MILLENNIUM__PYTHON_ENV)) },
-        { "LIBPYTHON_BUILTIN_MODULES_DLL_PATH", fmt::format("{}/lib/python3.11/lib-dynload", NIX_STR(MILLENNIUM__PYTHON_ENV)) }
+        { "LIBPYTHON_BUILTIN_MODULES_PATH", fmt::format("{}/lib/python3.11", MILLENNIUM__PYTHON_ENV) },
+        { "LIBPYTHON_BUILTIN_MODULES_DLL_PATH", fmt::format("{}/lib/python3.11/lib-dynload", MILLENNIUM__PYTHON_ENV) }
     };
     environment.insert(environment_unix.begin(), environment_unix.end());
 #elif __APPLE__
@@ -265,7 +265,7 @@ void SetupEnvironmentVariables()
     const std::string pythonEnvBin = fmt::format("{}/bin/python3.11", pythonEnv);
 
     if (access(pythonEnvBin.c_str(), F_OK) == -1) {
-        std::system(fmt::format("\"{}/bin/python3.11\" -m venv \"{}\" --system-site-packages --symlinks", NIX_STR(MILLENNIUM__PYTHON_ENV), pythonEnv).c_str());
+        std::system(fmt::format("\"{}/bin/python3.11\" -m venv \"{}\" --system-site-packages --symlinks", MILLENNIUM__PYTHON_ENV, pythonEnv).c_str());
     }
 
     std::map<std::string, std::string> environment_macos = {
@@ -284,8 +284,8 @@ void SetupEnvironmentVariables()
 
         { "MILLENNIUM__PYTHON_ENV", pythonEnv },
         { "LIBPYTHON_RUNTIME_BIN_PATH", pythonEnvBin },
-        { "LIBPYTHON_BUILTIN_MODULES_PATH", fmt::format("{}/lib/python3.11", NIX_STR(MILLENNIUM__PYTHON_ENV)) },
-        { "LIBPYTHON_BUILTIN_MODULES_DLL_PATH", fmt::format("{}/lib/python3.11/lib-dynload", NIX_STR(MILLENNIUM__PYTHON_ENV)) }
+        { "LIBPYTHON_BUILTIN_MODULES_PATH", fmt::format("{}/lib/python3.11", MILLENNIUM__PYTHON_ENV) },
+        { "LIBPYTHON_BUILTIN_MODULES_DLL_PATH", fmt::format("{}/lib/python3.11/lib-dynload", MILLENNIUM__PYTHON_ENV) }
     };
     environment.insert(environment_macos.begin(), environment_macos.end());
 #endif

@@ -44,6 +44,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <libgen.h>
+#include <limits.h>
+
 #define NIX_STR_HELPER(x) #x
 #define NIX_STR(x) NIX_STR_HELPER(x)
 
@@ -157,15 +160,27 @@ void Posix_AttachMillennium()
 extern "C" __attribute__((visibility("default"))) int StartMillennium()
 {
     Logger.Log("Hooked main() with PID: {}", getpid());
+
+    std::string libPath;
+
     #ifdef DISTRO_NIX
-    const char* envPath = std::getenv("NIX_PYTHON_LIB");
-    std::string libPath = envPath ? envPath : "";
-    Logger.Log("Calculated relative python path: {}", libPath);
+        const char* envHome = std::getenv("NIX_PYTHON_HOME");
+
+        if (envHome) {
+                Logger.Log("Setting PYTHONHOME to: {}", envHome);
+                setenv("PYTHONHOME", envHome, 1);
+                setenv("PYTHONPATH", envHome, 1);
+
+                libPath = std::string(envHome) + "/lib/libpython3.11.so";
+                Logger.Log("Calculated nix python path: {}", libPath);
+            } else {
+                libPath = "";
+            }
     #else
-        std::string libPath = NIX_STR(LIBPYTHON_RUNTIME_PATH);
+        libPath = NIX_STR(LIBPYTHON_RUNTIME_PATH);
     #endif
 
-    Logger.Log("Loading python libraries from {}", NIX_STR(libPath));
+    Logger.Log("Loading python libraries from {}", libPath.c_str());
     
     struct stat buffer;
     if (stat(libPath.c_str(), &buffer) == 0) {

@@ -259,13 +259,6 @@ static void proxy_sentinel_init(void)
         LOG_INFO("Detected non-NixOS environment.");
     #endif
 
-    LOG_INFO("Nix Vars:");
-    LOG_INFO("  DISTRO_NIX: %s", NIX_STR(DISTRO_NIX));
-    LOG_INFO("  NIX_LIBXTST_PATH: %s", NIX_STR(NIX_LIBXTST_PATH));
-    LOG_INFO("  NIX_MILLENNIUM_PATH_X86: %s", NIX_STR(NIX_MILLENNIUM_PATH_X86));
-    LOG_INFO("  NIX_MILLENNIUM_PATH_X64: %s", NIX_STR(NIX_MILLENNIUM_PATH_X64));
-    LOG_INFO("  NIX_ASSETS_PATH: %s", NIX_STR(NIX_ASSETS_PATH));
-    LOG_INFO("  NIX_SHIMS_PATH: %s", NIX_STR(NIX_SHIMS_PATH));
     if (load_and_start_millennium()) {
         LOG_INFO("Starting Millennium...");
     }
