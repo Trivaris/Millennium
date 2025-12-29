@@ -130,16 +130,15 @@
       overlays.default =
         final: prev:
         {
-          steam-millennium =
-            let
-              millennium = self.packages.${final.system}.millennium;
-            in
-            prev.steam.override {
-            extraProfile = ''
-              export NIX_STEAM_PATH="${final.steam}/bin/steam"
-              export LD_SO_SILENT=1
-            '';
-          };
+            steam-millennium = prev.steam.override {
+              extraProfile = ''
+                mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
+                ln -sf ${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                export NIX_STEAM_PATH=steam
+                export NIX_PYTHON_HOME=${self.packages.${final.system}.millennium.python}
+                export LD_SO_SILENT=1
+              '';
+            };
         };
     };
 }
