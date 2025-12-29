@@ -157,10 +157,25 @@ void Posix_AttachMillennium()
 extern "C" __attribute__((visibility("default"))) int StartMillennium()
 {
     Logger.Log("Hooked main() with PID: {}", getpid());
-    Logger.Log("Loading python libraries from {}", NIX_STR(LIBPYTHON_RUNTIME_PATH));
+    #ifdef DISTRO_NIX
+    const char* envPath = std::getenv("NIX_PYTHON_LIB");
+    std::string libPath = envPath ? envPath : "";
+    Logger.Log("Calculated relative python path: {}", libPath);
+    #else
+        std::string libPath = NIX_STR(LIBPYTHON_RUNTIME_PATH);
+    #endif
 
-    Logger.Log("Using correct hooking method!");
-    if (!dlopen(NIX_STR(LIBPYTHON_RUNTIME_PATH), RTLD_LAZY | RTLD_GLOBAL)) {
+    Logger.Log("Loading python libraries from {}", NIX_STR(libPath));
+    
+    struct stat buffer;
+    if (stat(libPath.c_str(), &buffer) == 0) {
+        Logger.Log("[OK] File found. Size: {}", buffer.st_size);
+    } else {
+        // If this fails, it means the copy command in package.nix didn't work
+        Logger.Log("[FAIL] stat() failed on relative path: {}", libPath);
+    }
+
+    if (!dlopen(libPath.c_str(), RTLD_LAZY | RTLD_GLOBAL)) {
         LOG_ERROR("Failed to load python libraries: {},\n\nThis is likely because it was not found on disk, try reinstalling Millennium.", dlerror());
     }
 

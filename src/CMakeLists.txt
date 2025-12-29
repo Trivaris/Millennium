@@ -196,8 +196,8 @@ elseif(DISTRO_NIX)
     endif()
 
     set(default_python_path "${NIX_PYTHON_PATH}")
-    set(MILLENNIUM__PYTHON_ENV "${default_python_path}")
-    set(LIBPYTHON_RUNTIME_PATH "${default_python_path}/lib/lib${NIX_PYTHON_LIB_PREFIX}.so")
+    set(MILLENNIUM__PYTHON_ENV "${NIX_PYTHON_PATH}")
+    set(LIBPYTHON_RUNTIME_PATH "${NIX_PYTHON_PATH}/lib/lib${NIX_PYTHON_LIB_PREFIX}.so")
 
     include_directories("${CMAKE_SOURCE_DIR}/vendor/python/posix")
     set(MILLENNIUM__UPDATE_SCRIPT_PROMPT "echo '[Millennium Updater] Running Nix-Version, Auto Update disabled'")

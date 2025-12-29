@@ -18,7 +18,7 @@
   ...
 }:
 stdenv.mkDerivation (finalAttrs: {
-  pname = "millennium-x86";
+  pname = "millennium";
   version = "2.32.0";
 
   src = self;
@@ -39,6 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
     pkgsi686Linux.glibc
     pkgsi686Linux.gtk3
     pkgsi686Linux.zlib-ng
+    pkgsi686Linux.libxcrypt
 
     pkgsi686Linux.xorg.libX11
     pkgsi686Linux.xorg.libXtst
@@ -57,22 +58,21 @@ stdenv.mkDerivation (finalAttrs: {
 
   python = pkgsi686Linux.python311;
 
-  passthru.python = finalAttrs.python;
-
   cmakeFlags = [
     "-GNinja"
     "-DCMAKE_BUILD_TYPE=Release"
     "-DUSER_CMAKE_MAKE_PROGRAM=ninja"
 
     "-DDISTRO_NIX=ON"
+    "-DNIX_ROOT_PATH=${placeholder "out"}/lib/millennium"
     "-DNIX_MILLENNIUM_PATH_X64=${placeholder "out"}/lib/millennium/libmillennium_hhx64.so"
     "-DNIX_MILLENNIUM_PATH_X86=${placeholder "out"}/lib/millennium/libMillennium_x86.so"
     "-DNIX_ASSETS_PATH=${millennium-assets}/share/millennium/assets"
-    "-DNIX_SHIMS_PATH=${millennium-shims}/share/millennium/shims/"
+    "-DNIX_SHIMS_PATH=${millennium-shims}/share/millennium/shims"
     "-DNIX_LIBXTST_PATH=${pkgsi686Linux.xorg.libXtst}/lib/libXtst.so.6"
 
-    "-DNIX_PYTHON_PATH=${finalAttrs.python}"
     "-DNIX_PYTHON_LIB_PREFIX=${finalAttrs.python.libPrefix}"
+    "-DNIX_PYTHON_PATH=${finalAttrs.python}"
   ];
 
   postPatch = ''
@@ -107,6 +107,7 @@ stdenv.mkDerivation (finalAttrs: {
   configurePhase = ''
     runHook preConfigure
 
+    # Dummy Commits because git is used to determine versions, but flake inputs strip git history
     git init
     git config user.name "Nix Build"
     git config user.email "nix-build@localhost"
@@ -121,11 +122,13 @@ stdenv.mkDerivation (finalAttrs: {
     git -C deps/luajit commit -m "Dummy Commit for Nix Build" > /dev/null 2>&1
 
     export DEPS_DIR="$(pwd)/deps"
-
     export CFLAGS="$CFLAGS -I$DEPS_DIR/luajit/src"
 
     mkdir -p build
     mkdir -p src/sdk/packages/loader/build
+    mkdir -p $out/lib/millennium
+
+    cp -L ${finalAttrs.python}/lib/libpython3.11.so.1.0 $out/lib/millennium/libpython3.11.so
 
     cp -r ${millennium-assets}/share/millennium/assets/* build/
     cp -r ${millennium-shims}/share/millennium/shims/* src/sdk/packages/loader/build
@@ -148,20 +151,10 @@ stdenv.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p $out/lib/millennium
-    mkdir -p $out/test
 
-    echo "${finalAttrs.python}" > $out/test/python-path.txt
-    echo "${finalAttrs.python.libPrefix}" > $out/test/python-lib-prefix.txt
-
-
-    install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so \
-      $out/lib/millennium/libMillennium_x86.so
-
-    install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so \
-      $out/lib/millennium/
-
-    install -Dm755 build/src/hhx64-build/libmillennium_hhx64.so \
-      $out/lib/millennium/
+    install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so $out/lib/millennium/libMillennium_x86.so
+    install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so $out/lib/millennium/
+    install -Dm755 build/src/hhx64-build/libmillennium_hhx64.so $out/lib/millennium/
 
     runHook postInstall
   '';

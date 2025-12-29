@@ -112,7 +112,8 @@
               extraProfile = ''
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
                 ln -sf ${packages.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                export NIX_STEAM_PATH="steam"
+                export NIX_STEAM_PATH=steam
+                export NIX_PYTHON_LIB=${packages.millennium.python}/lib/libpython3.11.so
                 export LD_SO_SILENT=1
               '';
             };
