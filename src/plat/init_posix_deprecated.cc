@@ -39,6 +39,9 @@
 #include <regex>
 #include <thread>
 
+#define NIX_STR_HELPER(x) #x
+#define NIX_STR(x) NIX_STR_HELPER(x)
+
 /* Trampoline for the real main() */
 static int (*fnMainOriginal)(int, char**, char**);
 
@@ -95,9 +98,10 @@ int Deprecated_HookedMain(int argc, char** argv, char** envp)
 {
     RemoveFromLdPreload();
     Logger.Log("Hooked main() with PID: {}", getpid());
-    Logger.Log("Loading python libraries from {}", LIBPYTHON_RUNTIME_PATH);
+    Logger.Log("Loading python libraries from {}", NIX_STR(LIBPYTHON_RUNTIME_PATH));
 
-    if (!dlopen(LIBPYTHON_RUNTIME_PATH, RTLD_LAZY | RTLD_GLOBAL)) {
+    Logger.Log("Using deprecated hooking method for some reason?");
+    if (!dlopen(NIX_STR(LIBPYTHON_RUNTIME_PATH), RTLD_LAZY | RTLD_GLOBAL)) {
         LOG_ERROR("Failed to load python libraries: {},\n\nThis is likely because it was not found on disk, try reinstalling Millennium.", dlerror());
     }
 

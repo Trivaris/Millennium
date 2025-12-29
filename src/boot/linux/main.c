@@ -48,6 +48,9 @@
 #define COLOR_ERROR "\033[1;31m"
 #define COLOR_WARN "\033[1;33m"
 
+#define NIX_STR_HELPER(x) #x
+#define NIX_STR(x) NIX_STR_HELPER(x)
+
 void* h_xtst = NULL;
 static void* h_millennium = NULL;
 static int b_has_loaded_millennium = 0;
@@ -84,7 +87,9 @@ typedef int (*stop_millennium_t)(void);
 #define LOG_ERROR(fmt, ...) fprintf(stderr, "%s " COLOR_ERROR "BOOTSTRAP-ERROR " COLOR_RESET fmt "\n", GET_TIMESTAMP(), ##__VA_ARGS__)
 #define LOG_WARN(fmt, ...) fprintf(stderr, "%s " COLOR_WARN "BOOTSTRAP-WARN " COLOR_RESET fmt "\n", GET_TIMESTAMP(), ##__VA_ARGS__)
 
-#ifdef MILLENNIUM_RUNTIME_PATH
+#ifdef DISTRO_NIX
+static const char* k_millennium_path = NIX_STR(NIX_MILLENNIUM_PATH_X86);
+#elif MILLENNIUM_RUNTIME_PATH
 static const char* k_millennium_path = MILLENNIUM_RUNTIME_PATH;
 #else
 static const char* get_millennium_library_path(void)
@@ -190,7 +195,11 @@ static void setup_hooks(void)
     }
 
     char lbxtst_path[PATH_MAX];
-    snprintf(lbxtst_path, PATH_MAX, "%s/steam-runtime/usr/lib/i386-linux-gnu/libXtst.so.6", p);
+    #ifdef DISTRO_NIX
+        snprintf(lbxtst_path, PATH_MAX, "%s", NIX_STR(NIX_LIBXTST_PATH));
+    #else
+        snprintf(lbxtst_path, PATH_MAX, "%s/steam-runtime/usr/lib/i386-linux-gnu/libXtst.so.6", p);
+    #endif
 
     if (access(lbxtst_path, F_OK) == -1) {
         LOG_ERROR("Pinned libXtst does not exist at: %s", lbxtst_path);
@@ -205,6 +214,10 @@ static void setup_hooks(void)
 
 static int is_steam_process(void)
 {
+    #ifdef DISTRO_NIX
+        return 1;
+    #endif
+    
     char* p = get_process_path();
     if (!p) return 0;
 
@@ -240,6 +253,19 @@ static void proxy_sentinel_init(void)
     b_has_loaded_millennium = 1;
 
     LOG_INFO("Bootstrap library loaded successfully. Using Millennium library at: %s", k_millennium_path);
+    #ifdef DISTRO_NIX
+        LOG_INFO("Detected NixOS environment.");
+    #else
+        LOG_INFO("Detected non-NixOS environment.");
+    #endif
+
+    LOG_INFO("Nix Vars:");
+    LOG_INFO("  DISTRO_NIX: %s", NIX_STR(DISTRO_NIX));
+    LOG_INFO("  NIX_LIBXTST_PATH: %s", NIX_STR(NIX_LIBXTST_PATH));
+    LOG_INFO("  NIX_MILLENNIUM_PATH_X86: %s", NIX_STR(NIX_MILLENNIUM_PATH_X86));
+    LOG_INFO("  NIX_MILLENNIUM_PATH_X64: %s", NIX_STR(NIX_MILLENNIUM_PATH_X64));
+    LOG_INFO("  NIX_ASSETS_PATH: %s", NIX_STR(NIX_ASSETS_PATH));
+    LOG_INFO("  NIX_SHIMS_PATH: %s", NIX_STR(NIX_SHIMS_PATH));
     if (load_and_start_millennium()) {
         LOG_INFO("Starting Millennium...");
     }

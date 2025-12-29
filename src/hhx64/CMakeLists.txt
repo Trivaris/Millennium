@@ -51,16 +51,25 @@ function(millennium_process_package input_path)
     endif()
 endfunction()
 
-FetchContent_Declare(abseil GIT_REPOSITORY https://github.com/abseil/abseil-cpp GIT_TAG 20240722.0 SOURCE_SUBDIR fakedir)
-FetchContent_Declare(re2    GIT_REPOSITORY https://github.com/google/re2        GIT_TAG 2025-11-05 SOURCE_SUBDIR fakedir)
+if (DISTRO_NIX)
+    set(FETCHCONTENT_FULLY_DISCONNECTED ON)
+    
+    FetchContent_Declare(abseil SOURCE_DIR "${NIX_DEPS_DIR}/abseil")
+    FetchContent_Declare(re2    SOURCE_DIR "${NIX_DEPS_DIR}/re2")
 
-FetchContent_MakeAvailable(abseil re2)
+    FetchContent_MakeAvailable(abseil re2)
+else()
+    FetchContent_Declare(abseil GIT_REPOSITORY https://github.com/abseil/abseil-cpp GIT_TAG 20240722.0 SOURCE_SUBDIR fakedir)
+    FetchContent_Declare(re2    GIT_REPOSITORY https://github.com/google/re2        GIT_TAG 2025-11-05 SOURCE_SUBDIR fakedir)
 
-millennium_process_package("${abseil_SOURCE_DIR}")
-millennium_process_package("${re2_SOURCE_DIR}")
+    FetchContent_MakeAvailable(abseil re2)
 
-add_subdirectory("${abseil_SOURCE_DIR}" "${abseil_BINARY_DIR}")
-add_subdirectory("${re2_SOURCE_DIR}"    "${re2_BINARY_DIR}"   )
+    millennium_process_package("${abseil_SOURCE_DIR}")
+    millennium_process_package("${re2_SOURCE_DIR}")
+
+    add_subdirectory("${abseil_SOURCE_DIR}" "${abseil_BINARY_DIR}")
+    add_subdirectory("${re2_SOURCE_DIR}"    "${re2_BINARY_DIR}"   )
+endif()
 
 if(WIN32)
     message(STATUS "[hhx64] fetching minhook...")

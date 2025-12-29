@@ -8,8 +8,8 @@
   ...
 }:
 stdenv.mkDerivation (finalAttrs: {
-  pname = "millennium-loader";
-  version = "0.0.0";
+  pname = "millennium-shims";
+  version = "5.8.3";
 
   src = self;
 
@@ -24,6 +24,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) version pname pnpmWorkspaces;
+    pnpm = pnpm_9;
     src = "${finalAttrs.src}/src/sdk";
     fetcherVersion = 3;
     hash = "sha256-YaOHf5pfStiOG/ay3QKTAyIfjH39hVRnw53qucNeJG8=";
@@ -41,7 +42,7 @@ stdenv.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p $out/share/millennium/shims
-    cp -r src/sdk/packages/loader/build/* $out/share/millennium/shims
+    cp -r src/sdk/packages/loader/build/* $out/share/millennium/shims/
 
     runHook postInstall
   '';

@@ -44,6 +44,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define NIX_STR_HELPER(x) #x
+#define NIX_STR(x) NIX_STR_HELPER(x)
+
 std::unique_ptr<std::thread> g_millenniumThread;
 
 void VerifyEnvironment();
@@ -103,10 +106,18 @@ DESTRUCTOR void Posix_UnInitializeEnvironment()
 
 void Posix_AttachWebHelperHook()
 {
+    #ifdef DISTRO_NIX
+    const char *path = NIX_STR(NIX_MILLENNIUM_PATH_X64);
+    #else
+    const char *path = "/home/shdw/Development/Millennium/build/src/hhx64-build/libmillennium_hhx64.so";
+    #endif
     const char* existing = getenv("LD_PRELOAD");
+    const char* separator = (existing && *existing) ? ":" : "";
+    const char* suffix = (existing && *existing) ? existing : "";
     char* new_value;
 
-    if (asprintf(&new_value, "%s%s/home/shdw/Development/Millennium/build/src/hhx64-build/libmillennium_hhx64.so", existing ? existing : "", existing ? ":" : "") < 0) {
+
+    if (asprintf(&new_value, "%s%s%s", path, separator, suffix) < 0) {
         LOG_ERROR("[Posix_AttachWebHelperHook] asprintf failed to allocate new buffer");
         return;
     }
@@ -146,9 +157,10 @@ void Posix_AttachMillennium()
 extern "C" __attribute__((visibility("default"))) int StartMillennium()
 {
     Logger.Log("Hooked main() with PID: {}", getpid());
-    Logger.Log("Loading python libraries from {}", LIBPYTHON_RUNTIME_PATH);
+    Logger.Log("Loading python libraries from {}", NIX_STR(LIBPYTHON_RUNTIME_PATH));
 
-    if (!dlopen(LIBPYTHON_RUNTIME_PATH, RTLD_LAZY | RTLD_GLOBAL)) {
+    Logger.Log("Using correct hooking method!");
+    if (!dlopen(NIX_STR(LIBPYTHON_RUNTIME_PATH), RTLD_LAZY | RTLD_GLOBAL)) {
         LOG_ERROR("Failed to load python libraries: {},\n\nThis is likely because it was not found on disk, try reinstalling Millennium.", dlerror());
     }
 

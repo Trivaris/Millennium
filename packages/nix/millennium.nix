@@ -2,35 +2,26 @@
   stdenv,
   pkgsi686Linux,
   self,
-  millennium-core,
-  millennium-loader,
   inputs,
+  millennium-shims,
+  millennium-assets,
   autoPatchelfHook,
   cmake,
   ninja,
   openssl,
   git,
   perl,
-  python3,
   gcc_multi,
   pkg-config,
   xorg,
+  zlib,
   ...
 }:
-let
-  python-32bit = pkgsi686Linux.python311;
-  pythonLibName = "libpython${python-32bit.pythonVersion}.so";
-  pythonLibPath = "${python-32bit}/lib/${pythonLibName}";
-  pythonInclude = "${python-32bit}/include/python${python-32bit.pythonVersion}";
-  pythonExecutable = "${python-32bit}/bin/python3";
-in
 stdenv.mkDerivation (finalAttrs: {
-  pname = "millennium";
+  pname = "millennium-x86";
   version = "2.32.0";
 
   src = self;
-
-  dontUseCmakeConfigure = true;
 
   nativeBuildInputs = [
     autoPatchelfHook
@@ -38,16 +29,17 @@ stdenv.mkDerivation (finalAttrs: {
     ninja
     gcc_multi
     pkg-config
-    python3
     git
     perl
   ];
 
   buildInputs = [
+    pkgsi686Linux.git
     pkgsi686Linux.openssl
     pkgsi686Linux.glibc
     pkgsi686Linux.gtk3
-    pkgsi686Linux.libpsl
+    pkgsi686Linux.zlib-ng
+
     pkgsi686Linux.xorg.libX11
     pkgsi686Linux.xorg.libXtst
     pkgsi686Linux.xorg.libXi
@@ -63,19 +55,24 @@ stdenv.mkDerivation (finalAttrs: {
     pkgsi686Linux.xorg.libICE
   ];
 
-  python = python-32bit;
+  python = pkgsi686Linux.python311;
 
-  postFixup = ''
-    for lib in $out/lib/millennium/*.so; do
-      patchelf --set-rpath \
-        "$out/share/millennium/python-bridge/lib:$out/lib/millennium" \
-        "$lib"
-    done
-  '';
+  passthru.python = finalAttrs.python;
 
-  patches = [
-    ./nix-python-env.patch
-    ./nix-python-env2.patch
+  cmakeFlags = [
+    "-GNinja"
+    "-DCMAKE_BUILD_TYPE=Release"
+    "-DUSER_CMAKE_MAKE_PROGRAM=ninja"
+
+    "-DDISTRO_NIX=ON"
+    "-DNIX_MILLENNIUM_PATH_X64=${placeholder "out"}/lib/millennium/libmillennium_hhx64.so"
+    "-DNIX_MILLENNIUM_PATH_X86=${placeholder "out"}/lib/millennium/libMillennium_x86.so"
+    "-DNIX_ASSETS_PATH=${millennium-assets}/share/millennium/assets"
+    "-DNIX_SHIMS_PATH=${millennium-shims}/share/millennium/shims/"
+    "-DNIX_LIBXTST_PATH=${pkgsi686Linux.xorg.libXtst}/lib/libXtst.so.6"
+
+    "-DNIX_PYTHON_PATH=${finalAttrs.python}"
+    "-DNIX_PYTHON_LIB_PREFIX=${finalAttrs.python.libPrefix}"
   ];
 
   postPatch = ''
@@ -105,79 +102,42 @@ stdenv.mkDerivation (finalAttrs: {
     prepare_dep asio        "${inputs.asio-src}"
     prepare_dep abseil      "${inputs.abseil-src}"
     prepare_dep re2         "${inputs.re2-src}"
+  '';
 
-    # Fix Python linking
-    grep -rl "/opt/python-i686-3.11.8" . | xargs sed -i "s|/opt/python-i686-3.11.8|${python-32bit}|g"
-    grep -rl "libpython-3.11.8.so" . | xargs sed -i "s|libpython-3.11.8.so|${pythonLibName}|g"
+  configurePhase = ''
+    runHook preConfigure
 
-    grep -rl "build/src/hhx64-build/" . | xargs sed -i "s|build/src/hhx64-build/||g"
-    grep -rl "/home/shdw/Development/Millennium" . | xargs sed -i "s|/home/shdw/Development/Millennium|${placeholder "out"}/lib/millennium|g"
-    grep -rl "/usr/lib/millennium/libmillennium_x86.so" . | xargs sed -i "s|/usr/lib/millennium/libmillennium_x86.so|${placeholder "out"}/lib/millennium/libmillennium_x86.so|g"
+    git init
+    git config user.name "Nix Build"
+    git config user.email "nix-build@localhost"
+    git add . > /dev/null 2>&1
+    git commit -m "Dummy commit for build" > /dev/null 2>&1
 
-    # Add missing git macros since we simulate the git repo
-    cat > scripts/cmake/millennium_version.cmake <<EOF
-    set(MILLENNIUM_VERSION "${finalAttrs.version}")
-    set(GIT_COMMIT_HASH "nix-build")
-    set(MILLENNIUM_VERSION_TAG "v${finalAttrs.version}")
+    git init deps/luajit
+    git -C deps/luajit config user.email "nix-build@localhost"
+    git -C deps/luajit config user.name "Nix Build"
+    git -C deps/luajit checkout -b main
+    git -C deps/luajit add . > /dev/null 2>&1
+    git -C deps/luajit commit -m "Dummy Commit for Nix Build" > /dev/null 2>&1
 
-    add_compile_definitions(MILLENNIUM_VERSION="${finalAttrs.version}")
-    add_compile_definitions(GIT_COMMIT_HASH="nix-build")
-    add_compile_definitions(MILLENNIUM_ROOT="${placeholder "out"}/lib/millennium")
-    add_compile_definitions(LIBPYTHON_RUNTIME_PATH="${pythonLibPath}")
-    EOF
+    export DEPS_DIR="$(pwd)/deps"
 
-    DEPS_DIR=$(pwd)/deps
+    export CFLAGS="$CFLAGS -I$DEPS_DIR/luajit/src"
 
-    FLAGS=$(echo ${
-      toString [
+    mkdir -p build
+    mkdir -p src/sdk/packages/loader/build
 
-        # Override dependencies to use the copies of flake inputs instead of fetching
-        "-DFETCHCONTENT_TRY_FIND_PACKAGE_MODE=NEVER"
-        "-DFETCHCONTENT_SOURCE_DIR_ZLIB=$DEPS_DIR/zlib"
-        "-DFETCHCONTENT_SOURCE_DIR_LUAJIT=$DEPS_DIR/luajit"
-        "-DFETCHCONTENT_SOURCE_DIR_LUA_CJSON=$DEPS_DIR/luajson"
-        "-DFETCHCONTENT_SOURCE_DIR_MINHOOK=$DEPS_DIR/minhook"
-        "-DFETCHCONTENT_SOURCE_DIR_MINI=$DEPS_DIR/mini"
-        "-DFETCHCONTENT_SOURCE_DIR_WEBSOCKETPP=$DEPS_DIR/websocketpp"
-        "-DFETCHCONTENT_SOURCE_DIR_FMT=$DEPS_DIR/fmt"
-        "-DFETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON=$DEPS_DIR/json"
-        "-DFETCHCONTENT_SOURCE_DIR_LIBGIT2=$DEPS_DIR/libgit2"
-        "-DFETCHCONTENT_SOURCE_DIR_MINIZIP_NG=$DEPS_DIR/minizip"
-        "-DFETCHCONTENT_SOURCE_DIR_CURL=$DEPS_DIR/curl"
-        "-DFETCHCONTENT_SOURCE_DIR_INCBIN=$DEPS_DIR/incbin"
-        "-DFETCHCONTENT_SOURCE_DIR_ASIO=$DEPS_DIR/asio"
-        "-DFETCHCONTENT_SOURCE_DIR_RE2=$DEPS_DIR/re2"
-        "-DFETCHCONTENT_SOURCE_DIR_ABSEIL=$DEPS_DIR/abseil"
+    cp -r ${millennium-assets}/share/millennium/assets/* build/
+    cp -r ${millennium-shims}/share/millennium/shims/* src/sdk/packages/loader/build
 
-        # Apply Python link fix
-        "-D_NIX_OS=1"
-        "-DLIBPYTHON_RUNTIME_PATH=${pythonLibPath}"
-      ]
-    })
+    cmake --preset linux-release $cmakeFlags \
+      -DNIX_DEPS_DIR=$DEPS_DIR
 
-    substituteInPlace CMakeLists.txt \
-      --replace 'DCMAKE_SHARED_LINKER_FLAGS_RELEASE=''${CMAKE_SHARED_LINKER_FLAGS_RELEASE}' \
-                "DCMAKE_SHARED_LINKER_FLAGS_RELEASE=''${CMAKE_SHARED_LINKER_FLAGS_RELEASE} $FLAGS'"
+    runHook postConfigure
   '';
 
   buildPhase = ''
     runHook preBuild
-
-    # Copy shims and build from our millennium-core and millennium-loader packages
-    mkdir -p src/sdk/packages/loader/build
-    mkdir -p build
-    cp -r ${millennium-loader}/share/millennium/shims/* src/sdk/packages/loader/build/
-    cp -r ${millennium-core}/share/millennium/build/* ./build/
-
-    # Ran into problems with git, so create a dummy repo
-    git init
-    git config user.email "nix-build@localhost"
-    git config user.name "Nix Build"
-    git add .
-    git commit -m "Dummy commit for build"
-
-    cmake --preset linux-release \
-          -G "Ninja"
 
     cmake --build build --config Release
 
@@ -188,19 +148,20 @@ stdenv.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p $out/lib/millennium
-    mkdir -p $out/share/millennium/assets
+    mkdir -p $out/test
+
+    echo "${finalAttrs.python}" > $out/test/python-path.txt
+    echo "${finalAttrs.python.libPrefix}" > $out/test/python-lib-prefix.txt
+
 
     install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so \
-      $out/lib/millennium/
+      $out/lib/millennium/libMillennium_x86.so
 
     install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so \
       $out/lib/millennium/
 
     install -Dm755 build/src/hhx64-build/libmillennium_hhx64.so \
       $out/lib/millennium/
-
-    cp -r src/pipx \
-      $out/share/millennium/assets/
 
     runHook postInstall
   '';

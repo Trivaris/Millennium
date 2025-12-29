@@ -260,16 +260,16 @@
     "websocketpp-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1587320717,
-        "narHash": "sha256-9fIwouthv2GcmBe/UPvV7Xn9P2o0Kmn2hCI4jCh0hPM=",
+        "lastModified": 1745071367,
+        "narHash": "sha256-kxKhSDLWeSbyj553gm9WU1lxXinCxBIe+yOGTelPUL8=",
         "owner": "zaphoyd",
         "repo": "websocketpp",
-        "rev": "56123c87598f8b1dd471be83ca841ceae07f95ba",
+        "rev": "4dfe1be74e684acca19ac1cf96cce0df9eac2a2d",
         "type": "github"
       },
       "original": {
         "owner": "zaphoyd",
-        "ref": "56123c87598f8b1dd471be83ca841ceae07f95ba",
+        "ref": "4dfe1be74e684acca19ac1cf96cce0df9eac2a2d",
         "repo": "websocketpp",
         "type": "github"
       }

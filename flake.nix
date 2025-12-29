@@ -30,7 +30,8 @@
     };
 
     websocketpp-src = {
-      url = "github:zaphoyd/websocketpp?ref=56123c87598f8b1dd471be83ca841ceae07f95ba"; # 0.8.2 Commit
+      url = "github:zaphoyd/websocketpp?ref=4dfe1be74e684acca19ac1cf96cce0df9eac2a2d"; # Latest Commit as of 2025-12-27
+      #url = "github:zaphoyd/websocketpp?ref=56123c87598f8b1dd471be83ca841ceae07f95ba"; # 0.8.2 Commit
       flake = false;
     };
 
@@ -106,14 +107,20 @@
         let
           packages = {
             default = packages.millennium;
-            millennium-core = pkgs.callPackage ./packages/nix/core.nix { self = ./.; };
-            millennium-loader = pkgs.callPackage ./packages/nix/loader.nix { self = ./.; };
-            millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
-            millennium = pkgs.callPackage ./packages/nix/millennium.nix {
-              inherit inputs;
-              inherit (packages) millennium-core millennium-loader;
-              self = ./.;
+
+            steam-millennium = pkgs.steam.override {
+              extraProfile = ''
+                mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
+                ln -sf ${packages.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                export NIX_STEAM_PATH="steam"
+                export LD_SO_SILENT=1
+              '';
             };
+
+            millennium = pkgs.callPackage ./packages/nix/millennium.nix { self = ./.; inherit inputs; inherit (packages) millennium-assets millennium-shims; };
+            millennium-assets = pkgs.callPackage ./packages/nix/assets.nix { self = ./.; };
+            millennium-shims = pkgs.callPackage ./packages/nix/shims.nix { self = ./.; };
+            millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
           };
         in
         packages
@@ -121,33 +128,15 @@
 
       overlays.default =
         final: prev:
-        let 
-          millennium = self.packages.${prev.system}.millennium;
-          millennium-bin = self.packages.${prev.system}.millennium-bin;
-        in 
         {
-          steam-millennium = prev.steam.override {
-            extraPkgs = pkgs: [
-              millennium
-              pkgs.pkgsi686Linux.openssl
-            ];
-
-            extraArgs = "-loader ${millennium}/lib/millennium/libmillennium_x86.so";
-
+          steam-millennium =
+            let
+              millennium = self.packages.${final.system}.millennium;
+            in
+            prev.steam.override {
             extraProfile = ''
-              mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
-              ln -sf ${millennium}/lib/millennium/libmillennium_bootstrap_86x.so \
-                "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-
-              mkdir -p "$HOME/.steam/steam"
-              touch "$HOME/.steam/steam/.cef-enable-remote-debugging"
-
-              export OPENSSL_CONF=/dev/null
-              export MILLENNIUM_DISABLE_WEBHELPER_HOOK=1
-
-              unset LD_PRELOAD
-              unset PYTHONHOME
-              unset PYTHONPATH
+              export NIX_STEAM_PATH="${final.steam}/bin/steam"
+              export LD_SO_SILENT=1
             '';
           };
         };
