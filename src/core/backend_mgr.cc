@@ -150,6 +150,9 @@ BackendManager::~BackendManager()
 BackendManager::BackendManager() : m_InterpreterThreadSave(nullptr)
 {
     const auto [pythonPath, pythonLibs, pythonUserLibs] = GetPythonEnvPaths();
+    
+    const char* nixRoot = getenv("MILLENNIUM__PYTHON_ENV");
+    std::string homeDir = nixRoot ? nixRoot : pythonPath;
 
     // initialize global modules
     PyImport_AppendInittab("hook_stdout", &PyInit_CustomStdout);
@@ -172,7 +175,12 @@ BackendManager::BackendManager() : m_InterpreterThreadSave(nullptr)
         goto done;
     }
 
-    PyConfig_SetString(&config, &config.home, std::wstring(pythonPath.begin(), pythonPath.end()).c_str());
+    #ifdef DISTRO_NIX
+        PyConfig_SetString(&config, &config.home, std::wstring(homeDir.begin(), homeDir.end()).c_str());
+    #else
+        PyConfig_SetString(&config, &config.home, std::wstring(pythonPath.begin(), pythonPath.end()).c_str());
+    #endif
+
     config.write_bytecode = 0;
     config.module_search_paths_set = 1;
 

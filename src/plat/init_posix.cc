@@ -167,14 +167,11 @@ extern "C" __attribute__((visibility("default"))) int StartMillennium()
         const char* envHome = std::getenv("NIX_PYTHON_HOME");
 
         if (envHome) {
-                Logger.Log("Setting PYTHONHOME to: {}", envHome);
-                setenv("PYTHONHOME", envHome, 1);
-                setenv("PYTHONPATH", envHome, 1);
-
                 libPath = std::string(envHome) + "/lib/libpython3.11.so";
                 Logger.Log("Calculated nix python path: {}", libPath);
             } else {
-                libPath = "";
+                Logger.Log("[CRITICAL] NIX_PYTHON_HOME is not set!");
+                return 0;
             }
     #else
         libPath = NIX_STR(LIBPYTHON_RUNTIME_PATH);
@@ -192,6 +189,7 @@ extern "C" __attribute__((visibility("default"))) int StartMillennium()
 
     if (!dlopen(libPath.c_str(), RTLD_LAZY | RTLD_GLOBAL)) {
         LOG_ERROR("Failed to load python libraries: {},\n\nThis is likely because it was not found on disk, try reinstalling Millennium.", dlerror());
+        return 0;
     }
 
     g_millenniumThread = std::make_unique<std::thread>(Posix_AttachMillennium);
