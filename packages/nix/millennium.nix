@@ -135,7 +135,8 @@ stdenv.mkDerivation (finalAttrs: {
     cp -r ${millennium-shims}/share/millennium/shims/* src/sdk/packages/loader/build
 
     cmake --preset linux-release $cmakeFlags \
-      -DNIX_DEPS_DIR=$DEPS_DIR
+      -DNIX_DEPS_DIR=$DEPS_DIR \
+      -DNIX_MILLENNIUM_BASE=$(pwd)
 
     runHook postConfigure
   '';
