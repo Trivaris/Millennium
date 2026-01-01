@@ -5,6 +5,7 @@
   inputs,
   millennium-shims,
   millennium-assets,
+  millennium-frontend,
   autoPatchelfHook,
   cmake,
   ninja,
@@ -56,22 +57,27 @@ stdenv.mkDerivation (finalAttrs: {
     pkgsi686Linux.xorg.libICE
   ];
 
-  python = pkgsi686Linux.python311;
+  python = builtins.fetchTarball {
+    url = "https://github.com/shdwmtr/pybuilder/releases/download/v1.0.6/python-3.11.8-32-bit.tar.gz";
+    sha256 = "sha256:1mm8ay24apxdskx4s0dqi0yxb66wmi5z9ga9m8f0vvlxfrf8xfix";
+  };
 
   cmakeFlags = [
     "-GNinja"
     "-DCMAKE_BUILD_TYPE=Release"
     "-DUSER_CMAKE_MAKE_PROGRAM=ninja"
+    "-DMILLENNIUM_VERSION=${finalAttrs.version}"
 
     "-DDISTRO_NIX=ON"
-    "-DNIX_ROOT_PATH=${placeholder "out"}/lib/millennium"
+
     "-DNIX_MILLENNIUM_PATH_X64=${placeholder "out"}/lib/millennium/libmillennium_hhx64.so"
-    "-DNIX_MILLENNIUM_PATH_X86=${placeholder "out"}/lib/millennium/libMillennium_x86.so"
+    "-DNIX_MILLENNIUM_PATH_X86=${placeholder "out"}/lib/millennium/libmillennium_x86.so"
+
+    "-DNIX_FRONTEND_PATH=${millennium-frontend}/share/millennium/frontend"
     "-DNIX_ASSETS_PATH=${millennium-assets}/share/millennium/assets"
     "-DNIX_SHIMS_PATH=${millennium-shims}/share/millennium/shims"
-    "-DNIX_LIBXTST_PATH=${pkgsi686Linux.xorg.libXtst}/lib/libXtst.so.6"
 
-    "-DNIX_PYTHON_LIB_PREFIX=${finalAttrs.python.libPrefix}"
+    "-DNIX_LIBXTST_PATH=${pkgsi686Linux.xorg.libXtst}/lib/libXtst.so.6"
     "-DNIX_PYTHON_PATH=${finalAttrs.python}"
   ];
 
@@ -102,41 +108,31 @@ stdenv.mkDerivation (finalAttrs: {
     prepare_dep asio        "${inputs.asio-src}"
     prepare_dep abseil      "${inputs.abseil-src}"
     prepare_dep re2         "${inputs.re2-src}"
+  
+    # Dummy Commits because git is used to determine versions, but flake inputs strip git history
+    export HOME=$(pwd)
+    git config --global init.defaultBranch main
+    git config --global user.email "nix-build@localhost"
+    git config --global user.name "Nix Build"
+
+    git init
+    git add .
+    git commit -m "Dummy commit for build" > /dev/null 2>&1
+
+    git init deps/luajit
+    git -C deps/luajit add .
+    git -C deps/luajit commit -m "Dummy Commit for Nix Build" > /dev/null 2>&1
+
+    chmod -R u+rwx deps/
   '';
 
   configurePhase = ''
     runHook preConfigure
 
-    # Dummy Commits because git is used to determine versions, but flake inputs strip git history
-    git init
-    git config user.name "Nix Build"
-    git config user.email "nix-build@localhost"
-    git add . > /dev/null 2>&1
-    git commit -m "Dummy commit for build" > /dev/null 2>&1
-
-    git init deps/luajit
-    git -C deps/luajit config user.email "nix-build@localhost"
-    git -C deps/luajit config user.name "Nix Build"
-    git -C deps/luajit checkout -b main
-    git -C deps/luajit add . > /dev/null 2>&1
-    git -C deps/luajit commit -m "Dummy Commit for Nix Build" > /dev/null 2>&1
-
-    export DEPS_DIR="$(pwd)/deps"
-    export CFLAGS="$CFLAGS -I$DEPS_DIR/luajit/src"
-
-    mkdir -p build
-    mkdir -p src/sdk/packages/loader/build
     mkdir -p $out/lib/millennium
 
-    cp -L ${finalAttrs.python}/lib/libpython3.11.so.1.0 $out/lib/millennium/libpython3.11.so
-    cp -r ${finalAttrs.python}/lib/python3.11 $out/lib/millennium/lib/
-
-    cp -r ${millennium-assets}/share/millennium/assets/* build/
-    cp -r ${millennium-shims}/share/millennium/shims/* src/sdk/packages/loader/build
-
     cmake --preset linux-release $cmakeFlags \
-      -DNIX_DEPS_DIR=$DEPS_DIR \
-      -DNIX_MILLENNIUM_BASE=$(pwd)
+      -DNIX_DEPS_DIR=$(pwd)/deps
 
     runHook postConfigure
   '';
@@ -154,7 +150,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     mkdir -p $out/lib/millennium
 
-    install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so $out/lib/millennium/libMillennium_x86.so
+    install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so $out/lib/millennium/libmillennium_x86.so
     install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so $out/lib/millennium/
     install -Dm755 build/src/hhx64-build/libmillennium_hhx64.so $out/lib/millennium/
 

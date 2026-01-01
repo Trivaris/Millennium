@@ -14,36 +14,10 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = self;
 
-  nativeBuildInputs = [
-    nodejs_20
-    pnpm_9
-    pnpmConfigHook
-  ];
-
-  pnpmRoot = "src/frontend";
-
-  pnpmDeps = fetchPnpmDeps {
-    inherit (finalAttrs) version pname;
-    pnpm = pnpm_9;
-    src = "${finalAttrs.src}/src/frontend";
-    fetcherVersion = 3;
-    hash = "sha256-i53ZZ8ehOi3ybuckUo1Js5tC4LB0QCe4IQCwDwoegXg=";
-  };
-
-  buildPhase = ''
-    runHook preBuild
-
-    pnpm --dir src/frontend run build
-
-    runHook postBuild
-  '';
-
   installPhase = ''
     runHook preInstall
 
     mkdir -p $out/share/millennium/assets/
-
-    cp -r build/frontend.bin $out/share/millennium/assets/
     cp -r src/pipx $out/share/millennium/assets/pipx
 
     runHook postInstall

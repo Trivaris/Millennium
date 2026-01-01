@@ -10,11 +10,11 @@ endif()
 
 if(DISTRO_NIX)
     target_compile_definitions(unix-hooks PRIVATE DISTRO_NIX=${DISTRO_NIX})
-    target_compile_definitions(unix-hooks PRIVATE NIX_LIBXTST_PATH=${NIX_LIBXTST_PATH})
-    target_compile_definitions(unix-hooks PRIVATE NIX_MILLENNIUM_PATH_X64=${NIX_MILLENNIUM_PATH_X64})
-    target_compile_definitions(unix-hooks PRIVATE NIX_MILLENNIUM_PATH_X86=${NIX_MILLENNIUM_PATH_X86})
-    target_compile_definitions(unix-hooks PRIVATE NIX_ASSETS_PATH=${NIX_ASSETS_PATH})
-    target_compile_definitions(unix-hooks PRIVATE NIX_SHIMS_PATH=${NIX_SHIMS_PATH})
+    target_compile_definitions(unix-hooks PRIVATE NIX_LIBXTST_PATH="${NIX_LIBXTST_PATH}")
+    target_compile_definitions(unix-hooks PRIVATE NIX_MILLENNIUM_PATH_X64="${NIX_MILLENNIUM_PATH_X64}")
+    target_compile_definitions(unix-hooks PRIVATE NIX_MILLENNIUM_PATH_X86="${NIX_MILLENNIUM_PATH_X86}")
+    target_compile_definitions(unix-hooks PRIVATE NIX_SHIMS_PATH="${NIX_SHIMS_PATH}")
+    target_compile_definitions(unix-hooks PRIVATE NIX_ASSETS_PATH="${NIX_ASSETS_PATH}")
 endif()
 
 # Ensure symbols are exported properly for library interposition

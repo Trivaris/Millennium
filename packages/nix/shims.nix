@@ -29,6 +29,12 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-NGq5c1E8yM1hwHvVmjtTnReVrXSxb+AK1Qv4K0FsNDg=";
   };
 
+  postPatch = ''
+    TARGET_DIR="src/sdk/packages/loader"
+    find "$TARGET_DIR" -type f -name "*.ts" -print0 | xargs -0 sed -i "s|import('@steambrew/client|import(/* webpackIgnore: true */ '@steambrew/client|g"
+    find "$TARGET_DIR" -type f -name "*.ts" -print0 | xargs -0 sed -i 's|import("@steambrew/client|import(/* webpackIgnore: true */ "@steambrew/client|g'
+  '';
+
   buildPhase = ''
     runHook preBuild
 

@@ -48,9 +48,6 @@
 #define COLOR_ERROR "\033[1;31m"
 #define COLOR_WARN "\033[1;33m"
 
-#define NIX_STR_HELPER(x) #x
-#define NIX_STR(x) NIX_STR_HELPER(x)
-
 void* h_xtst = NULL;
 static void* h_millennium = NULL;
 static int b_has_loaded_millennium = 0;
@@ -88,7 +85,7 @@ typedef int (*stop_millennium_t)(void);
 #define LOG_WARN(fmt, ...) fprintf(stderr, "%s " COLOR_WARN "BOOTSTRAP-WARN " COLOR_RESET fmt "\n", GET_TIMESTAMP(), ##__VA_ARGS__)
 
 #ifdef DISTRO_NIX
-static const char* k_millennium_path = NIX_STR(NIX_MILLENNIUM_PATH_X86);
+static const char* k_millennium_path = NIX_MILLENNIUM_PATH_X86;
 #elif MILLENNIUM_RUNTIME_PATH
 static const char* k_millennium_path = MILLENNIUM_RUNTIME_PATH;
 #else
@@ -196,7 +193,7 @@ static void setup_hooks(void)
 
     char lbxtst_path[PATH_MAX];
     #ifdef DISTRO_NIX
-        snprintf(lbxtst_path, PATH_MAX, "%s", NIX_STR(NIX_LIBXTST_PATH));
+        snprintf(lbxtst_path, PATH_MAX, "%s", NIX_LIBXTST_PATH);
     #else
         snprintf(lbxtst_path, PATH_MAX, "%s/steam-runtime/usr/lib/i386-linux-gnu/libXtst.so.6", p);
     #endif
@@ -214,10 +211,6 @@ static void setup_hooks(void)
 
 static int is_steam_process(void)
 {
-    #ifdef DISTRO_NIX
-        return 1;
-    #endif
-    
     char* p = get_process_path();
     if (!p) return 0;
 
@@ -253,11 +246,6 @@ static void proxy_sentinel_init(void)
     b_has_loaded_millennium = 1;
 
     LOG_INFO("Bootstrap library loaded successfully. Using Millennium library at: %s", k_millennium_path);
-    #ifdef DISTRO_NIX
-        LOG_INFO("Detected NixOS environment.");
-    #else
-        LOG_INFO("Detected non-NixOS environment.");
-    #endif
 
     if (load_and_start_millennium()) {
         LOG_INFO("Starting Millennium...");

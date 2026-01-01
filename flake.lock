@@ -12,7 +12,7 @@
       },
       "original": {
         "owner": "abseil",
-        "ref": "4447c7562e3bc702ade25105912dce503f0c4010",
+        "ref": "20240722.0",
         "repo": "abseil-cpp",
         "type": "github"
       }
@@ -29,7 +29,7 @@
       },
       "original": {
         "owner": "chriskohlhoff",
-        "ref": "22ccfc94fc77356f7820601f9f33b9129a337d2d",
+        "ref": "asio-1-30-0",
         "repo": "asio",
         "type": "github"
       }
@@ -46,7 +46,7 @@
       },
       "original": {
         "owner": "curl",
-        "ref": "1c3149881769e7bd79b072e48374e4c2b3678b2f",
+        "ref": "curl-8_13_0",
         "repo": "curl",
         "type": "github"
       }
@@ -63,7 +63,7 @@
       },
       "original": {
         "owner": "fmtlib",
-        "ref": "e424e3f2e607da02742f73db84873b8084fc714c",
+        "ref": "12.0.0",
         "repo": "fmt",
         "type": "github"
       }
@@ -80,7 +80,7 @@
       },
       "original": {
         "owner": "graphitemaster",
-        "ref": "22061f51fe9f2f35f061f85c2b217b55dd75310d",
+        "ref": "main",
         "repo": "incbin",
         "type": "github"
       }
@@ -97,7 +97,7 @@
       },
       "original": {
         "owner": "libgit2",
-        "ref": "0060d9cf5666f015b1067129bd874c6cc4c9c7ac",
+        "ref": "v1.9.1",
         "repo": "libgit2",
         "type": "github"
       }
@@ -114,7 +114,7 @@
       },
       "original": {
         "owner": "SteamClientHomebrew",
-        "ref": "89550023569c3e195e75e12951c067fe5591e0d2",
+        "ref": "v2.1",
         "repo": "LuaJIT",
         "type": "github"
       }
@@ -131,7 +131,7 @@
       },
       "original": {
         "owner": "SteamClientHomebrew",
-        "ref": "0c1fabf07c42f3907287d1e4f729e0620c1fe6fd",
+        "ref": "master",
         "repo": "LuaJSON",
         "type": "github"
       }
@@ -148,7 +148,7 @@
       },
       "original": {
         "owner": "TsudaKageyu",
-        "ref": "c3fcafdc10146beb5919319d0683e44e3c30d537",
+        "ref": "v1.3.4",
         "repo": "minhook",
         "type": "github"
       }
@@ -165,7 +165,7 @@
       },
       "original": {
         "owner": "metayeti",
-        "ref": "52b66e987cb56171dc91d96115cdf094b6e4d7a0",
+        "ref": "0.9.18",
         "repo": "mINI",
         "type": "github"
       }
@@ -182,7 +182,7 @@
       },
       "original": {
         "owner": "zlib-ng",
-        "ref": "f3ed731e27a97e30dffe076ed5e0537daae5c1bd",
+        "ref": "4.0.10",
         "repo": "minizip-ng",
         "type": "github"
       }
@@ -215,7 +215,7 @@
       },
       "original": {
         "owner": "nlohmann",
-        "ref": "55f93686c01528224f448c19128836e7df245f72",
+        "ref": "v3.12.0",
         "repo": "json",
         "type": "github"
       }
@@ -232,7 +232,7 @@
       },
       "original": {
         "owner": "google",
-        "ref": "927f5d53caf8111721e734cf24724686bb745f55",
+        "ref": "2025-11-05",
         "repo": "re2",
         "type": "github"
       }
@@ -260,16 +260,16 @@
     "websocketpp-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1745071367,
-        "narHash": "sha256-kxKhSDLWeSbyj553gm9WU1lxXinCxBIe+yOGTelPUL8=",
+        "lastModified": 1587320717,
+        "narHash": "sha256-9fIwouthv2GcmBe/UPvV7Xn9P2o0Kmn2hCI4jCh0hPM=",
         "owner": "zaphoyd",
         "repo": "websocketpp",
-        "rev": "4dfe1be74e684acca19ac1cf96cce0df9eac2a2d",
+        "rev": "56123c87598f8b1dd471be83ca841ceae07f95ba",
         "type": "github"
       },
       "original": {
         "owner": "zaphoyd",
-        "ref": "4dfe1be74e684acca19ac1cf96cce0df9eac2a2d",
+        "ref": "0.8.2",
         "repo": "websocketpp",
         "type": "github"
       }
@@ -277,16 +277,16 @@
     "zlib-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1764709076,
-        "narHash": "sha256-lO6fO18Z74+wKF0O/JjfrhS8lyaNQ37eamWGThb39F8=",
+        "lastModified": 1754565515,
+        "narHash": "sha256-c2RYqHi3hj/ViBzJcYWoNib27GAbq/B1SJUfvG7CPG4=",
         "owner": "zlib-ng",
         "repo": "zlib-ng",
-        "rev": "6d9f3dc072369dc719a5fbe71d4e086a96a680bd",
+        "rev": "425439062b114a0f6cf625022c41d929c7e879f9",
         "type": "github"
       },
       "original": {
         "owner": "zlib-ng",
-        "ref": "6d9f3dc072369dc719a5fbe71d4e086a96a680bd",
+        "ref": "2.2.5",
         "repo": "zlib-ng",
         "type": "github"
       }

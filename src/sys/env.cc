@@ -46,9 +46,6 @@
 #include <unistd.h>
 #endif
 
-#define NIX_STR_HELPER(x) #x
-#define NIX_STR(x) NIX_STR_HELPER(x)
-
 std::map<std::string, std::string> envVariables;
 
 #if defined(__linux__) || defined(__APPLE__)
@@ -152,40 +149,40 @@ std::string GetEnvWithFallback(std::string key, std::string fallback)
 void SetupEnvironmentVariables()
 {
     std::map<std::string, std::string> environment = {
-        { "MILLENNIUM__VERSION",    NIX_STR(MILLENNIUM_VERSION)       },
+        { "MILLENNIUM__VERSION",    MILLENNIUM_VERSION       },
         { "MILLENNIUM__STEAM_PATH", SystemIO::GetSteamPath().string() }
     };
 
 #if defined(MILLENNIUM_SDK_DEVELOPMENT_MODE_ASSETS)
-    const auto shimsPath = NIX_STR(MILLENNIUM_SDK_DEVELOPMENT_MODE_ASSETS);
+    const auto shimsPath = MILLENNIUM_SDK_DEVELOPMENT_MODE_ASSETS;
 #else
-#ifdef _WIN32
-    const auto shimsPath = SystemIO::GetInstallPath().string() + "/ext/data/shims";
-#elif __linux__
-#ifdef DISTRO_NIX
-    const auto shimsPath = NIX_STR(NIX_SHIMS_PATH);
-#else
-    const auto shimsPath = "/usr/share/millennium/shims";
-#endif
-#elif __APPLE__
-    const auto shimsPath = "/usr/local/share/millennium/shims";
-#endif
+    #ifdef _WIN32
+        const auto shimsPath = SystemIO::GetInstallPath().string() + "/ext/data/shims";
+    #elif __linux__
+        #ifdef DISTRO_NIX
+            const auto shimsPath = NIX_SHIMS_PATH;
+        #else
+            const auto shimsPath = "/usr/share/millennium/shims";
+        #endif
+    #elif __APPLE__
+        const auto shimsPath = "/usr/local/share/millennium/shims";
+    #endif
 #endif
 
 #if defined(MILLENNIUM_FRONTEND_DEVELOPMENT_MODE_ASSETS)
-    const auto assetsPath = NIX_STR(MILLENNIUM_FRONTEND_DEVELOPMENT_MODE_ASSETS);
+    const auto assetsPath = MILLENNIUM_FRONTEND_DEVELOPMENT_MODE_ASSETS;
 #else
-#ifdef _WIN32
-    const auto assetsPath = SystemIO::GetInstallPath().string() + "/ext/data/assets";
-#elif __linux__
-#ifdef DISTRO_NIX
-    const auto assetsPath = NIX_STR(NIX_ASSETS_PATH);
-#else
-    const auto assetsPath = "/usr/share/millennium/assets";
-#endif
-#elif __APPLE__
-    const auto assetsPath = "/usr/local/share/millennium/assets";
-#endif
+    #ifdef _WIN32
+        const auto assetsPath = SystemIO::GetInstallPath().string() + "/ext/data/assets";
+    #elif __linux__
+        #ifdef DISTRO_NIX
+            const auto assetsPath = NIX_ASSETS_PATH;
+        #else
+            const auto assetsPath = "/usr/share/millennium/assets";
+        #endif
+    #elif __APPLE__
+        const auto assetsPath = "/usr/local/share/millennium/assets";
+    #endif
 #endif
 
     const auto dataLibPath = std::filesystem::path(assetsPath).parent_path().generic_string();
@@ -228,18 +225,14 @@ void SetupEnvironmentVariables()
     std::map<std::string, std::string> environment_unix = {
         { "OPENSSL_CONF", "/dev/null" },
         #ifdef DISTRO_NIX
-        { "MILLENNIUM_RUNTIME_PATH", fmt::format("{}/lib/millennium/libMillennium_x86.so", NIX_STR(NIX_MILLENNIUM_PATH_X86)) },
+        { "MILLENNIUM_RUNTIME_PATH", NIX_MILLENNIUM_PATH_X86 },
         #else
         { "MILLENNIUM_RUNTIME_PATH", customLdPreload != "" ? customLdPreload : "/usr/lib/millennium/libmillennium_x86.so" },
         #endif
 
-        { "LIBPYTHON_RUNTIME_PATH", NIX_STR(LIBPYTHON_RUNTIME_PATH) },
+        { "LIBPYTHON_RUNTIME_PATH", LIBPYTHON_RUNTIME_PATH },
 
-        #ifdef DISTRO_NIX
-        { "MILLENNIUM__STEAM_EXE_PATH", GetEnv("NIX_STEAM_PATH") },
-        #else
         { "MILLENNIUM__STEAM_EXE_PATH", fmt::format("{}/.steam/steam/ubuntu12_32/steam", homeDir) },
-        #endif
 
         { "MILLENNIUM__PLUGINS_PATH", fmt::format("{}/millennium/plugins", dataDir) },
         { "MILLENNIUM__CONFIG_PATH", fmt::format("{}/millennium", configDir) },
@@ -248,7 +241,7 @@ void SetupEnvironmentVariables()
         { "MILLENNIUM__SHIMS_PATH", shimsPath },
         { "MILLENNIUM__ASSETS_PATH", assetsPath },
 
-        { "MILLENNIUM__UPDATE_SCRIPT_PROMPT", NIX_STR(MILLENNIUM__UPDATE_SCRIPT_PROMPT) }, /** The script the user will run to update millennium. */
+        { "MILLENNIUM__UPDATE_SCRIPT_PROMPT", MILLENNIUM__UPDATE_SCRIPT_PROMPT }, /** The script the user will run to update millennium. */
 
         { "MILLENNIUM__PYTHON_ENV", pythonEnv },
         { "LIBPYTHON_RUNTIME_BIN_PATH", pythonEnvBin },
@@ -270,7 +263,7 @@ void SetupEnvironmentVariables()
 
     std::map<std::string, std::string> environment_macos = {
         { "MILLENNIUM_RUNTIME_PATH", "/usr/local/lib/millennium/libmillennium_x86.dylib" },
-        { "LIBPYTHON_RUNTIME_PATH", NIX_STR(LIBPYTHON_RUNTIME_PATH) },
+        { "LIBPYTHON_RUNTIME_PATH", LIBPYTHON_RUNTIME_PATH },
 
         { "MILLENNIUM__STEAM_EXE_PATH", fmt::format("{}/Library/Application Support/Steam/Steam.app/Contents/MacOS/steam_osx", homeDir) },
         { "MILLENNIUM__PLUGINS_PATH", fmt::format("{}/Millennium/plugins", dataDir) },

@@ -5,78 +5,77 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
     zlib-src = {
-      url = "github:zlib-ng/zlib-ng?ref=6d9f3dc072369dc719a5fbe71d4e086a96a680bd"; # 2.3.2 Commit
+      url = "github:zlib-ng/zlib-ng/2.2.5?shallows=true";
       flake = false;
     };
 
     luajit-src = {
-      url = "github:SteamClientHomebrew/LuaJIT?ref=89550023569c3e195e75e12951c067fe5591e0d2"; # Latest Commit as of 2025-12-27
+      url = "github:SteamClientHomebrew/LuaJIT/v2.1?shallows=true";
       flake = false;
     };
 
     luajson-src = {
-      url = "github:SteamClientHomebrew/LuaJSON?ref=0c1fabf07c42f3907287d1e4f729e0620c1fe6fd"; # Latest Commit as of 2025-12-27
+      url = "github:SteamClientHomebrew/LuaJSON/master?shallows=true";
       flake = false;
     };
 
     minhook-src = {
-      url = "github:TsudaKageyu/minhook?ref=c3fcafdc10146beb5919319d0683e44e3c30d537"; # v1.3.4 Commit
+      url = "github:TsudaKageyu/minhook/v1.3.4?shallows=true";
       flake = false;
     };
 
     mini-src = {
-      url = "github:metayeti/mINI?ref=52b66e987cb56171dc91d96115cdf094b6e4d7a0"; # 0.9.18 Commit
+      url = "github:metayeti/mINI/0.9.18?shallows=true";
       flake = false;
     };
 
     websocketpp-src = {
-      url = "github:zaphoyd/websocketpp?ref=4dfe1be74e684acca19ac1cf96cce0df9eac2a2d"; # Latest Commit as of 2025-12-27
-      #url = "github:zaphoyd/websocketpp?ref=56123c87598f8b1dd471be83ca841ceae07f95ba"; # 0.8.2 Commit
+      url = "github:zaphoyd/websocketpp/0.8.2?shallows=true";
       flake = false;
     };
 
     fmt-src = {
-      url = "github:fmtlib/fmt?ref=e424e3f2e607da02742f73db84873b8084fc714c"; # 12.0.0 Commit
+      url = "github:fmtlib/fmt/12.0.0?shallows=true";
       flake = false;
     };
 
     nlohmann-json-src = {
-      url = "github:nlohmann/json?ref=55f93686c01528224f448c19128836e7df245f72"; # 3.12.0 Commit
+      url = "github:nlohmann/json/v3.12.0?shallows=true";
       flake = false;
     };
 
     libgit2-src = {
-      url = "github:libgit2/libgit2?ref=0060d9cf5666f015b1067129bd874c6cc4c9c7ac"; # v1.9.1 Commit
+      url = "github:libgit2/libgit2/v1.9.1?shallows=true";
       flake = false;
     };
 
     minizip-ng-src = {
-      url = "github:zlib-ng/minizip-ng?ref=f3ed731e27a97e30dffe076ed5e0537daae5c1bd"; # 4.0.10 Commit
+      url = "github:zlib-ng/minizip-ng/4.0.10?shallows=true";
       flake = false;
     };
 
     curl-src = {
-      url = "github:curl/curl?ref=1c3149881769e7bd79b072e48374e4c2b3678b2f"; # 8.13.0 Commit
+      url = "github:curl/curl/curl-8_13_0?shallows=true";
       flake = false;
     };
 
     incbin-src = {
-      url = "github:graphitemaster/incbin?ref=22061f51fe9f2f35f061f85c2b217b55dd75310d"; # Latest Commit as of 2025-12-27
+      url = "github:graphitemaster/incbin/main?shallows=true";
       flake = false;
     };
 
     asio-src = {
-      url = "github:chriskohlhoff/asio?ref=22ccfc94fc77356f7820601f9f33b9129a337d2d"; # 1.30.0 Commit
+      url = "github:chriskohlhoff/asio/asio-1-30-0?shallows=true";
       flake = false;
     };
 
     abseil-src = {
-      url = "github:abseil/abseil-cpp?ref=4447c7562e3bc702ade25105912dce503f0c4010"; # 20240722.0 Commit
+      url = "github:abseil/abseil-cpp/20240722.0";
       flake = false;
     };
 
     re2-src = {
-      url = "github:google/re2?ref=927f5d53caf8111721e734cf24724686bb745f55"; # 2025-11-05 Commit
+      url = "github:google/re2/2025-11-05";
       flake = false;
     };
   };
@@ -111,15 +110,17 @@
             steam-millennium = pkgs.steam.override {
               extraProfile = ''
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
+                rm -rf "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
                 ln -sf ${packages.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                export NIX_STEAM_PATH=steam
-                export NIX_PYTHON_HOME=${packages.millennium.python}
+                export NIX_PYTHON_HOME=${packages.millennium.python}/lib/libpython-3.11.8.so
                 export LD_SO_SILENT=1
               '';
             };
 
-            millennium = pkgs.callPackage ./packages/nix/millennium.nix { self = ./.; inherit inputs; inherit (packages) millennium-assets millennium-shims; };
+            millennium = pkgs.callPackage ./packages/nix/millennium.nix { self = ./.; inherit inputs; inherit (packages) millennium-assets millennium-shims millennium-frontend; };
+            millennium-python = packages.millennium.python;
             millennium-assets = pkgs.callPackage ./packages/nix/assets.nix { self = ./.; };
+            millennium-frontend = pkgs.callPackage ./packages/nix/frontend.nix { self = ./.; };
             millennium-shims = pkgs.callPackage ./packages/nix/shims.nix { self = ./.; };
             millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
           };
@@ -133,9 +134,9 @@
             steam-millennium = prev.steam.override {
               extraProfile = ''
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
+                rm -rf "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
                 ln -sf ${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                export NIX_STEAM_PATH=steam
-                export NIX_PYTHON_HOME=${self.packages.${final.system}.millennium.python}
+                export NIX_PYTHON_HOME=${self.packages.${final.system}.millennium.python}/lib/libpython-3.11.8.so
                 export LD_SO_SILENT=1
               '';
             };

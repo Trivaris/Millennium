@@ -47,9 +47,6 @@
 #include <libgen.h>
 #include <limits.h>
 
-#define NIX_STR_HELPER(x) #x
-#define NIX_STR(x) NIX_STR_HELPER(x)
-
 std::unique_ptr<std::thread> g_millenniumThread;
 
 void VerifyEnvironment();
@@ -110,7 +107,7 @@ DESTRUCTOR void Posix_UnInitializeEnvironment()
 void Posix_AttachWebHelperHook()
 {
     #ifdef DISTRO_NIX
-    const char *path = NIX_STR(NIX_MILLENNIUM_PATH_X64);
+    const char *path = NIX_MILLENNIUM_PATH_X64;
     #else
     const char *path = "/home/shdw/Development/Millennium/build/src/hhx64-build/libmillennium_hhx64.so";
     #endif
@@ -164,28 +161,11 @@ extern "C" __attribute__((visibility("default"))) int StartMillennium()
     std::string libPath;
 
     #ifdef DISTRO_NIX
-        const char* envHome = std::getenv("NIX_PYTHON_HOME");
-
-        if (envHome) {
-                libPath = std::string(envHome) + "/lib/libpython3.11.so";
-                Logger.Log("Calculated nix python path: {}", libPath);
-            } else {
-                Logger.Log("[CRITICAL] NIX_PYTHON_HOME is not set!");
-                return 0;
-            }
+    libPath = getenv("NIX_PYTHON_HOME");
     #else
-        libPath = NIX_STR(LIBPYTHON_RUNTIME_PATH);
+    libPath = LIBPYTHON_RUNTIME_PATH;
     #endif
-
     Logger.Log("Loading python libraries from {}", libPath.c_str());
-    
-    struct stat buffer;
-    if (stat(libPath.c_str(), &buffer) == 0) {
-        Logger.Log("[OK] File found. Size: {}", buffer.st_size);
-    } else {
-        // If this fails, it means the copy command in package.nix didn't work
-        Logger.Log("[FAIL] stat() failed on relative path: {}", libPath);
-    }
 
     if (!dlopen(libPath.c_str(), RTLD_LAZY | RTLD_GLOBAL)) {
         LOG_ERROR("Failed to load python libraries: {},\n\nThis is likely because it was not found on disk, try reinstalling Millennium.", dlerror());
