@@ -112,12 +112,11 @@ void Posix_AttachWebHelperHook()
     const char *path = "/home/shdw/Development/Millennium/build/src/hhx64-build/libmillennium_hhx64.so";
     #endif
     const char* existing = getenv("LD_PRELOAD");
-    const char* separator = (existing && *existing) ? ":" : "";
-    const char* suffix = (existing && *existing) ? existing : "";
+    const char* separator = existing ? ":" : "";
+    const char* suffix = existing ? existing : "";
     char* new_value;
 
-
-    if (asprintf(&new_value, "%s%s%s", path, separator, suffix) < 0) {
+    if (asprintf(&new_value, "%s%s%s", suffix, separator, path) < 0) {
         LOG_ERROR("[Posix_AttachWebHelperHook] asprintf failed to allocate new buffer");
         return;
     }
