@@ -6,6 +6,7 @@
   millennium-shims,
   millennium-assets,
   millennium-frontend,
+  millennium-python,
   autoPatchelfHook,
   cmake,
   ninja,
@@ -57,11 +58,6 @@ stdenv.mkDerivation (finalAttrs: {
     pkgsi686Linux.xorg.libICE
   ];
 
-  python = builtins.fetchTarball {
-    url = "https://github.com/shdwmtr/pybuilder/releases/download/v1.0.6/python-3.11.8-32-bit.tar.gz";
-    sha256 = "sha256:1mm8ay24apxdskx4s0dqi0yxb66wmi5z9ga9m8f0vvlxfrf8xfix";
-  };
-
   cmakeFlags = [
     "-GNinja"
     "-DCMAKE_BUILD_TYPE=Release"
@@ -78,7 +74,7 @@ stdenv.mkDerivation (finalAttrs: {
     "-DNIX_SHIMS_PATH=${millennium-shims}/share/millennium/shims"
 
     "-DNIX_LIBXTST_PATH=${pkgsi686Linux.xorg.libXtst}/lib/libXtst.so.6"
-    "-DNIX_PYTHON_PATH=${finalAttrs.python}"
+    "-DNIX_PYTHON_PATH=${millennium-python}"
   ];
 
   postPatch = ''

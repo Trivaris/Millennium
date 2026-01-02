@@ -115,8 +115,8 @@
               '';
             };
 
-            millennium = pkgs.callPackage ./packages/nix/millennium.nix { self = ./.; inherit inputs; inherit (packages) millennium-assets millennium-shims millennium-frontend; };
-            millennium-python = packages.millennium.python;
+            millennium = pkgs.callPackage ./packages/nix/millennium.nix { self = ./.; inherit inputs; inherit (packages) millennium-assets millennium-shims millennium-frontend millennium-python; };
+            millennium-python = pkgs.callPackage ./packages/nix/python.nix { };
             millennium-assets = pkgs.callPackage ./packages/nix/assets.nix { self = ./.; };
             millennium-frontend = pkgs.callPackage ./packages/nix/frontend.nix { self = ./.; };
             millennium-shims = pkgs.callPackage ./packages/nix/shims.nix { self = ./.; };
