@@ -120,7 +120,6 @@
             millennium-assets = pkgs.callPackage ./packages/nix/assets.nix { self = ./.; };
             millennium-frontend = pkgs.callPackage ./packages/nix/frontend.nix { self = ./.; };
             millennium-shims = pkgs.callPackage ./packages/nix/shims.nix { self = ./.; };
-            millennium-bin = pkgs.callPackage ./packages/nix/millennium-bin.nix { };
           };
         in
         packages
