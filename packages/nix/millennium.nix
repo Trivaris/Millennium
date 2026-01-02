@@ -78,7 +78,7 @@ stdenv.mkDerivation (finalAttrs: {
     "-DNIX_SHIMS_PATH=${millennium-shims}/share/millennium/shims"
 
     "-DNIX_LIBXTST_PATH=${pkgsi686Linux.xorg.libXtst}/lib/libXtst.so.6"
-    "-DNIX_PYTHON_PATH=${placeholder "out"}/lib/millennium/ext/python"
+    "-DNIX_PYTHON_PATH=${finalAttrs.python}"
   ];
 
   postPatch = ''
@@ -147,11 +147,6 @@ stdenv.mkDerivation (finalAttrs: {
 
   installPhase = ''
     runHook preInstall
-
-    echo "Installing and patching Python..."
-    mkdir -p $out/lib/millennium/ext/python
-    cp -r ${finalAttrs.python}/* $out/lib/millennium/ext/python/
-    chmod -R +w $out/lib/millennium/ext/python
 
     install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so $out/lib/millennium/libmillennium_x86.so
     install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so $out/lib/millennium/
