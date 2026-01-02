@@ -41,9 +41,8 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/share/millennium/frontend/
-
-    cp -r build/frontend.bin $out/share/millennium/frontend/
+    mkdir -p $out/share/frontend/
+    cp -r build/frontend.bin $out/share/frontend/
 
     runHook postInstall
   '';

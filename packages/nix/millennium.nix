@@ -65,12 +65,12 @@ stdenv.mkDerivation (finalAttrs: {
 
     "-DDISTRO_NIX=ON"
 
-    "-DNIX_MILLENNIUM_PATH_X64=${placeholder "out"}/lib/millennium/libmillennium_hhx64.so"
-    "-DNIX_MILLENNIUM_PATH_X86=${placeholder "out"}/lib/millennium/libmillennium_x86.so"
+    "-DNIX_MILLENNIUM_PATH_X64=${placeholder "out"}/lib/libmillennium_hhx64.so"
+    "-DNIX_MILLENNIUM_PATH_X86=${placeholder "out"}/lib/libmillennium_x86.so"
 
-    "-DNIX_FRONTEND_PATH=${millennium-frontend}/share/millennium/frontend"
-    "-DNIX_ASSETS_PATH=${millennium-assets}/share/millennium/assets"
-    "-DNIX_SHIMS_PATH=${millennium-shims}/share/millennium/shims"
+    "-DNIX_FRONTEND_PATH=${millennium-frontend}/share/frontend"
+    "-DNIX_ASSETS_PATH=${millennium-assets}/share/assets"
+    "-DNIX_SHIMS_PATH=${millennium-shims}/share/shims"
 
     "-DNIX_LIBXTST_PATH=${pkgsi686Linux.xorg.libXtst}/lib/libXtst.so.6"
     "-DNIX_PYTHON_PATH=${millennium-python}"
@@ -124,8 +124,6 @@ stdenv.mkDerivation (finalAttrs: {
   configurePhase = ''
     runHook preConfigure
 
-    mkdir -p $out/lib/millennium
-
     cmake --preset linux-release $cmakeFlags \
       -DNIX_DEPS_DIR=$(pwd)/deps
 
@@ -143,9 +141,11 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    install -Dm755 build/src/libmillennium_x86.so                       $out/lib/millennium/libmillennium_x86.so
-    install -Dm755 build/src/hhx64/libmillennium_hhx64.so               $out/lib/millennium/libmillennium_hhx64.so
-    install -Dm755 build/src/boot/linux/libmillennium_bootstrap_86x.so  $out/lib/millennium/libmillennium_bootstrap_x86.so
+    mkdir -p $out/lib
+
+    install -Dm755 build/src/libmillennium_x86.so                       $out/lib/libmillennium_x86.so
+    install -Dm755 build/src/hhx64/libmillennium_hhx64.so               $out/lib/libmillennium_hhx64.so
+    install -Dm755 build/src/boot/linux/libmillennium_bootstrap_86x.so  $out/lib/libmillennium_bootstrap_x86.so
 
     runHook postInstall
   '';

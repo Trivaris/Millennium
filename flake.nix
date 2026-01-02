@@ -111,7 +111,7 @@
               extraProfile = ''
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
                 rm -rf "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                ln -sf ${packages.millennium}/lib/millennium/libmillennium_bootstrap_x86.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                ln -sf ${packages.millennium}/lib/libmillennium_bootstrap_x86.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
               '';
             };
 
@@ -132,7 +132,7 @@
               extraProfile = ''
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
                 rm -rf "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                ln -sf ${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_bootstrap_x86.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                ln -sf ${self.packages.${final.system}.millennium}/lib/libmillennium_bootstrap_x86.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
               '';
             };
         };
