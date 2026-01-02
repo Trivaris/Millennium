@@ -56,12 +56,15 @@ elseif(UNIX AND NOT APPLE)
 endif()
 
 if(DISTRO_NIX)
+    message(STATUS "[MILLENNIUM NIX] Compiling with Nix")
     add_compile_definitions(DISTRO_NIX=${DISTRO_NIX})
     add_compile_definitions(NIX_LIBXTST_PATH="${NIX_LIBXTST_PATH}")
     add_compile_definitions(NIX_MILLENNIUM_PATH_X64="${NIX_MILLENNIUM_PATH_X64}")
     add_compile_definitions(NIX_MILLENNIUM_PATH_X86="${NIX_MILLENNIUM_PATH_X86}")
     add_compile_definitions(NIX_SHIMS_PATH="${NIX_SHIMS_PATH}")
     add_compile_definitions(NIX_ASSETS_PATH="${NIX_ASSETS_PATH}")
+else()
+    message(STATUS "[MILLENNIUM NIX] Compiling without Nix")
 endif()
 
 include_directories(
@@ -163,7 +166,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(MILLENNIUM_FRONTEND_DEVELOPMENT_MODE_ASSETS "${MILLENNIUM_BASE}/src")
 
     add_compile_definitions(
-             MILLENNIUM_SDK_DEVELOPMENT_MODE_ASSETS="${MILLENNIUM_SDK_DEVELOPMENT_MODE_ASSETS}"
+        MILLENNIUM_SDK_DEVELOPMENT_MODE_ASSETS="${MILLENNIUM_SDK_DEVELOPMENT_MODE_ASSETS}"
         MILLENNIUM_FRONTEND_DEVELOPMENT_MODE_ASSETS="${MILLENNIUM_FRONTEND_DEVELOPMENT_MODE_ASSETS}"
     )
 endif()
@@ -198,7 +201,7 @@ elseif(DISTRO_NIX)
     set(MILLENNIUM__PYTHON "${NIX_PYTHON_PATH}")
     set(LIBPYTHON_RUNTIME_PATH "${NIX_PYTHON_PATH}/lib/libpython-3.11.8.so")
 
-    include_directories("${CMAKE_SOURCE_DIR}/vendor/python/posix")
+    include_directories("${NIX_PYTHON_PATH}/include/python3.11/")
     message(STATUS "[Millennium] Using python library ${LIBPYTHON_RUNTIME_PATH}")
 else()
     set(default_python_path "/opt/python-i686-3.11.8")

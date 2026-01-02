@@ -21,7 +21,7 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "millennium";
-  version = "2.32.0";
+  version = "2.33.0";
 
   src = self;
 
@@ -61,7 +61,6 @@ stdenv.mkDerivation (finalAttrs: {
   cmakeFlags = [
     "-GNinja"
     "-DCMAKE_BUILD_TYPE=Release"
-    "-DUSER_CMAKE_MAKE_PROGRAM=ninja"
     "-DMILLENNIUM_VERSION=${finalAttrs.version}"
 
     "-DDISTRO_NIX=ON"
@@ -144,9 +143,9 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    install -Dm755 build/src/millennium_x86-build/libmillennium_x86.so $out/lib/millennium/libmillennium_x86.so
-    install -Dm755 build/src/millennium_x86-build/boot/linux/libmillennium_bootstrap_86x.so $out/lib/millennium/
-    install -Dm755 build/src/hhx64-build/libmillennium_hhx64.so $out/lib/millennium/
+    install -Dm755 build/src/libmillennium_x86.so                       $out/lib/millennium/libmillennium_x86.so
+    install -Dm755 build/src/hhx64/libmillennium_hhx64.so               $out/lib/millennium/libmillennium_hhx64.so
+    install -Dm755 build/src/boot/linux/libmillennium_bootstrap_86x.so  $out/lib/millennium/libmillennium_bootstrap_x86.so
 
     runHook postInstall
   '';
