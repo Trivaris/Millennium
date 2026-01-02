@@ -112,7 +112,7 @@
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
                 rm -rf "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
                 ln -sf ${packages.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                export NIX_PYTHON_HOME=${packages.millennium.python}/lib/libpython-3.11.8.so
+                export NIX_PYTHON_LIB=${packages.millennium.python}/lib/libpython-3.11.8.so
                 export LD_SO_SILENT=1
               '';
             };
@@ -136,7 +136,7 @@
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
                 rm -rf "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
                 ln -sf ${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                export NIX_PYTHON_HOME=${self.packages.${final.system}.millennium.python}/lib/libpython-3.11.8.so
+                export NIX_PYTHON_LIB=${self.packages.${final.system}.millennium.python}/lib/libpython-3.11.8.so
                 export LD_SO_SILENT=1
               '';
             };

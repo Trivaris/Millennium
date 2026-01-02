@@ -161,7 +161,7 @@ extern "C" __attribute__((visibility("default"))) int StartMillennium()
     std::string libPath;
 
     #ifdef DISTRO_NIX
-    libPath = getenv("NIX_PYTHON_HOME");
+    libPath = getenv("NIX_PYTHON_LIB");
     #else
     libPath = LIBPYTHON_RUNTIME_PATH;
     #endif
