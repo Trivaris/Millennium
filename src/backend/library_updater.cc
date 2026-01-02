@@ -36,6 +36,11 @@
 
 Updater::Updater() : api_url("https://steambrew.app/api/checkupdates"), has_checked_for_updates(false)
 {
+    #ifdef DISTRO_NIX
+        Logger.Warn("Update checking is disabled on Nix builds due to distribution packaging policies.");
+        return;
+    #endif
+
     if (!CONFIG.GetNested("general.checkForPluginAndThemeUpdates").get<bool>()) {
         Logger.Warn("User has disabled update checking for plugins and themes.");
         return;

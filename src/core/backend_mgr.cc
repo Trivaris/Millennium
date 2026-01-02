@@ -150,8 +150,10 @@ BackendManager::~BackendManager()
 BackendManager::BackendManager() : m_InterpreterThreadSave(nullptr)
 {
     const auto [pythonPath, pythonLibs, pythonUserLibs] = GetPythonEnvPaths();
+    #ifdef DISTRO_NIX
+        std::string nixPythonPath = NIX_PYTHON_PATH;
+    #endif
     
-    std::string nixPythonPath = NIX_PYTHON_PATH;
 
     // initialize global modules
     PyImport_AppendInittab("hook_stdout", &PyInit_CustomStdout);

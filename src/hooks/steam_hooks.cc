@@ -613,5 +613,6 @@ bool Plat_InitializeSteamHooks()
 
     CoInitializer::BackendCallbacks& backendHandler = CoInitializer::BackendCallbacks::getInstance();
     backendHandler.RegisterForLoad(__backend_load);
+    Logger.Log("[Plat_InitializeSteamHooks] Finished Plat_InitializeSteamHooks");
     return InitializeSteamHooks();
 }

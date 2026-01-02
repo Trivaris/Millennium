@@ -103,6 +103,7 @@ CEFBrowser::CEFBrowser() : webKitHandler(HttpHookManager::get())
 void CEFBrowser::onMessage([[maybe_unused]] websocketpp::client<websocketpp::config::asio_client>* c, [[maybe_unused]] websocketpp::connection_hdl hdl,
                            websocketpp::config::asio_client::message_type::ptr msg)
 {
+    Logger.Log("[CEFBrowser] onMessage payload: {}", msg->get_payload());
     const auto json = nlohmann::json::parse(msg->get_payload());
 
     if (json.contains("id") && json["id"] == 0 && json.contains("result") && json["result"].is_object() && json["result"].contains("targetInfos") &&
@@ -299,8 +300,9 @@ void PluginLoader::PrintActivePlugins()
     for (auto it = (*this->m_pluginsPtr).begin(); it != (*this->m_pluginsPtr).end(); ++it) {
         const auto pluginName = (*it).pluginName;
         pluginList.append(fmt::format("{}: {}{}", pluginName, m_settingsStorePtr->IsEnabledPlugin(pluginName) ? "Enabled" : "Disabled",
-                                      std::next(it) == (*this->m_pluginsPtr).end() ? " }" : ", "));
+                                      std::next(it) == (*this->m_pluginsPtr).end() ? " " : ", "));
     }
+    pluginList.append("}");
 
     Logger.Log(pluginList);
 }
@@ -373,6 +375,7 @@ void PluginLoader::StartBackEnds(BackendManager& manager)
     static bool hasCoreLoaded = false;
     if (!hasCoreLoaded) {
         Core_Load();
+        Logger.Log("Core loaded");
         hasCoreLoaded = true;
     }
 
@@ -384,6 +387,7 @@ void PluginLoader::StartBackEnds(BackendManager& manager)
                 continue;
             }
 
+            Logger.Log("[Python] Preparing to start backend for '{}'", plugin.pluginName);
             std::function<void(SettingsStore::PluginTypeSchema)> cb = std::bind(CoInitializer::PyBackendStartCallback, std::placeholders::_1);
 
             Logger.Log("[Python] Starting backend for '{}'", plugin.pluginName);

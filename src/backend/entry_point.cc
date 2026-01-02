@@ -161,9 +161,13 @@ IPC_RET(Core_HasPendingMillenniumUpdateRestart, MillenniumUpdater::HasPendingRes
  */
 void Core_Load()
 {
+    Logger.Log("Loading core components...");
     settingsStore = std::make_unique<SettingsStore>();
+    Logger.Log("SettingsStore initialized");
     updater = std::make_shared<Updater>();
+    Logger.Log("Updater initialized");
     themeConfig = std::make_shared<ThemeConfig>();
+    Logger.Log("ThemeConfig initialized");
 }
 
 /** TODO: unused, impl later. shouldn't cause any issues on shutdown though. */

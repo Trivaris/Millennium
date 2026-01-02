@@ -135,9 +135,12 @@
               extraProfile = ''
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
                 rm -rf "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                ln -sf ${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                # ln -sf ${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_bootstrap_86x.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                ln -sf ${prev.pkgsi686Linux.xorg.libXtst}/lib/libXtst.so.6 "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                
                 export NIX_PYTHON_LIB=${self.packages.${final.system}.millennium.python}/lib/libpython-3.11.8.so
                 export LD_SO_SILENT=1
+		            export LD_PRELOAD=${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_hhx64.so:${self.packages.${final.system}.millennium}/lib/millennium/libmillennium_x86.so"
               '';
             };
         };

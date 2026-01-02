@@ -214,7 +214,6 @@ else()
     endif()
     message(STATUS "[Millennium] Using python library ${LIBPYTHON_RUNTIME_PATH}")
 
-    target_compile_definitions(Millennium PRIVATE NIX_PYTHON_PATH="${NIX_PYTHON_PATH}")
 endif()
 
 include(${MILLENNIUM_BASE}/scripts/cmake/find_steam_path.cmake)
@@ -233,6 +232,9 @@ elseif(UNIX)
     target_compile_definitions(Millennium PRIVATE MILLENNIUM__PYTHON_ENV="${MILLENNIUM__PYTHON_ENV}")
     target_compile_definitions(Millennium PRIVATE LIBPYTHON_RUNTIME_PATH="${LIBPYTHON_RUNTIME_PATH}")
     target_compile_definitions(Millennium PRIVATE MILLENNIUM__UPDATE_SCRIPT_PROMPT="${MILLENNIUM__UPDATE_SCRIPT_PROMPT}")
+    if(DISTRO_NIX)
+        target_compile_definitions(Millennium PRIVATE NIX_PYTHON_PATH="${NIX_PYTHON_PATH}")
+    endif()
 endif()
 
 find_steam_path(Millennium)
