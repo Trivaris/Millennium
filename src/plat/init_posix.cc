@@ -160,11 +160,7 @@ extern "C" __attribute__((visibility("default"))) int StartMillennium()
 
     std::string libPath;
 
-    #ifdef DISTRO_NIX
-    libPath = getenv("NIX_PYTHON_LIB");
-    #else
     libPath = LIBPYTHON_RUNTIME_PATH;
-    #endif
     Logger.Log("Loading python libraries from {}", libPath.c_str());
 
     if (!dlopen(libPath.c_str(), RTLD_LAZY | RTLD_GLOBAL)) {
