@@ -224,11 +224,7 @@ void SetupEnvironmentVariables()
 
     std::map<std::string, std::string> environment_unix = {
         { "OPENSSL_CONF", "/dev/null" },
-        #ifdef DISTRO_NIX
-        { "MILLENNIUM_RUNTIME_PATH", NIX_MILLENNIUM_PATH_X86 },
-        #else
         { "MILLENNIUM_RUNTIME_PATH", customLdPreload != "" ? customLdPreload : "/usr/lib/millennium/libmillennium_x86.so" },
-        #endif
 
         { "LIBPYTHON_RUNTIME_PATH", LIBPYTHON_RUNTIME_PATH },
 

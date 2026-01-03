@@ -582,10 +582,13 @@ void HttpHookManager::HandleIpcMessage(nlohmann::json message)
 
     std::string authToken = message.value(json::json_pointer("/params/request/headers/X-Millennium-Auth"), std::string{});
     if (authToken.empty() || GetAuthToken() != authToken) {
-        LOG_ERROR("Invalid or missing X-Millennium-Auth in IPC request. Request: {}", message.dump());
-        responseJson["params"]["responseCode"] = 401; // Unauthorized
-        this->PostGlobalMessage(responseJson);
-        return;
+        LOG_ERROR("Auth Mismatch! Client sent: '{}', Backend expects: '{}'", authToken, GetAuthToken());
+        //LOG_ERROR("Invalid or missing X-Millennium-Auth in IPC request. Request: {}", message.dump());
+        #ifndef DISTRO_NIX
+            responseJson["params"]["responseCode"] = 401; // Unauthorized
+            this->PostGlobalMessage(responseJson);
+            return;
+        #endif
     }
 
     nlohmann::json postData;

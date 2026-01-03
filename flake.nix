@@ -111,7 +111,8 @@
               extraProfile = ''
                 mkdir -p "$HOME/.local/share/Steam/ubuntu12_32"
                 rm -rf "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
-                ln -sf ${packages.millennium}/lib/libmillennium_bootstrap_x86.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"
+                export MILLENNIUM_RUNTIME_PATH=${packages.millennium}/lib/libmillennium_x86.so
+                ln -sf ${packages.millennium}/lib/libmillennium_bootstrap_x86.so "$HOME/.local/share/Steam/ubuntu12_32/libXtst.so.6"                
               '';
             };
 

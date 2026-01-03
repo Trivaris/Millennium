@@ -104,21 +104,31 @@ DESTRUCTOR void Posix_UnInitializeEnvironment()
     }
 }
 
+
 void Posix_AttachWebHelperHook()
 {
-    #ifdef DISTRO_NIX
-    const char *path = NIX_MILLENNIUM_PATH_X64;
-    #else
-    const char *path = "/home/shdw/Development/Millennium/build/src/hhx64-build/libmillennium_hhx64.so";
-    #endif
     const char* existing = getenv("LD_PRELOAD");
-    const char* separator = existing ? ":" : "";
-    const char* suffix = existing ? existing : "";
     char* new_value;
-
-    if (asprintf(&new_value, "%s%s%s", suffix, separator, path) < 0) {
-        LOG_ERROR("[Posix_AttachWebHelperHook] asprintf failed to allocate new buffer");
-        return;
+#ifdef DISTRO_NIX
+    const char* hhx_path = NIX_MILLENNIUM_PATH_X64;
+#elif DEBUG
+    const char* hhx_path = "./build/hhx64/libmillennium_hhx64.so";
+#else
+    const char * hhx_path = "/usr/lib/libmillennium_hhx64.so";
+#endif
+    if (existing != NULL) {
+        if (asprintf(&new_value, "%s%s%s", existing, ":", hhx_path) < 0) {
+            LOG_ERROR("[Posix_AttachWebHelperHook] asprintf failed to allocate new buffer");
+            return;
+        }
+    } else {
+        new_value = (char*)malloc(strlen(hhx_path)+1);
+        if (new_value == NULL) {
+            LOG_ERROR("[Posix_AttachWebHelperHook] malloc failed to allocate new buffer");
+            return;
+        }
+        strcpy(new_value, hhx_path);
+        new_value[strlen(hhx_path)] = '\0';
     }
 
     setenv("LD_PRELOAD", new_value, 1);

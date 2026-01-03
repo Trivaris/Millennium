@@ -84,9 +84,7 @@ typedef int (*stop_millennium_t)(void);
 #define LOG_ERROR(fmt, ...) fprintf(stderr, "%s " COLOR_ERROR "BOOTSTRAP-ERROR " COLOR_RESET fmt "\n", GET_TIMESTAMP(), ##__VA_ARGS__)
 #define LOG_WARN(fmt, ...) fprintf(stderr, "%s " COLOR_WARN "BOOTSTRAP-WARN " COLOR_RESET fmt "\n", GET_TIMESTAMP(), ##__VA_ARGS__)
 
-#ifdef DISTRO_NIX
-static const char* k_millennium_path = NIX_MILLENNIUM_PATH_X86;
-#elif MILLENNIUM_RUNTIME_PATH
+#ifdef MILLENNIUM_RUNTIME_PATH
 static const char* k_millennium_path = MILLENNIUM_RUNTIME_PATH;
 #else
 static const char* get_millennium_library_path(void)

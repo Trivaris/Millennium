@@ -145,7 +145,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     install -Dm755 build/src/libmillennium_x86.so                       $out/lib/libmillennium_x86.so
     install -Dm755 build/src/hhx64/libmillennium_hhx64.so               $out/lib/libmillennium_hhx64.so
-    install -Dm755 build/src/boot/linux/libmillennium_bootstrap_86x.so  $out/lib/libmillennium_bootstrap_x86.so
+    install -Dm755 build/src/boot/linux/libmillennium_bootstrap_x86.so  $out/lib/libmillennium_bootstrap_x86.so
 
     runHook postInstall
   '';

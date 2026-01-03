@@ -145,7 +145,7 @@ post_install() {
     fi
 
     # create a symlink for millenniums preload bootstrap.
-    [ -d "${HOME}/.steam/steam/ubuntu12_32" ] && ln -sf /usr/lib/millennium/libmillennium_bootstrap_86x.so "${target}"
+    [ -d "${HOME}/.steam/steam/ubuntu12_32" ] && ln -sf /usr/lib/millennium/libmillennium_bootstrap_x86.so "${target}"
 }
 
 cleanup() {
